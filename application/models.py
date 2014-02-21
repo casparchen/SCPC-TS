@@ -91,19 +91,19 @@ class Contest(db.Model):
     contestants=db.Column(db.Text)
     ranklist=db.Column(db.Text)
     
-	def  __init__(self,title,description,start_time,end_time,problems,private,contestance,ranklist):
-		self.title=title
-		self.description=description
-		self.start_time=start_time
-		self.end_time=end_time
-		self.problems=problems
-		self.private=private
-		self.contestants=contestants
-		self.ranklist=ranklist
+    def  __init__(self,title,description,start_time,end_time,problems,private,contestance,ranklist):
+        self.title=title
+        self.description=description
+        self.start_time=start_time
+        self.end_time=end_time
+        self.problems=problems
+        self.private=private
+        self.contestants=contestants
+        self.ranklist=ranklist
 	
 	
 class Submission(db.Model):
-	"""entity for submission"""
+    """entity for submission"""
     id = db.Column(db.Integer, primary_key = True)
     user_id=db.Column(db.Integer,nullable=False)
     problem_id=db.Column(db.Integer,nullable=False)

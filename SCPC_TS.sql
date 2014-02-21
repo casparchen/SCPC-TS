@@ -11,7 +11,7 @@ create table user (
     username text not null,
     password text not null,
     email text not null,
-    scpc_oj_account text,
+    scpc_oj_username text,
     last_login_time date
 );
 

@@ -9,3 +9,4 @@ db = SQLAlchemy(app)
 
 
 from application import views, models
+

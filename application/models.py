@@ -48,7 +48,6 @@ class News(db.Model):
     def __repr__(self):
         return "<news %r>" % self.title
         
-<<<<<<< HEAD
 class Problem(db.Model):
     """entity for problem"""
     id = db.Column(db.Integer, primary_key = True)
@@ -64,10 +63,8 @@ class Problem(db.Model):
     sample_input= db.Column(db.Text)
     sample_output= db.Column(db.Text)
     hint= db.Column(db.Text)
-=======
->>>>>>> d29e70f201028cb203c249da7756b3d229d5f110
     
-    def __intit__(owner_contest_id,owner_road_id,original_oj,title,memory_limit,time_limit,description,input,output,sample_input,sample_output,hint):
+    def __init__(owner_contest_id,owner_road_id,original_oj,title,memory_limit,time_limit,description,input,output,sample_input,sample_output,hint):
         self.owner_contest_id=owner_contest_id
         self.owner_road_id=owner_road_id
         self.original_oj=original_oj

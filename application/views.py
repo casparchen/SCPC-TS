@@ -2,9 +2,10 @@
 from flask import g, render_template, redirect, url_for
 from application import app,lm
 from application.forms import form_user_login
-from application.models import User, News
+from application.models import User, News, Problem, Contest, Submission
 from flask_login import login_user, logout_user, current_user, login_required
 import json
+import collections
 
 
 
@@ -43,18 +44,48 @@ def login(action):
             return json.dumps({"result" : "ok"})
         return json.dumps({"result" : "failed"})
 
-@app.route('/news/<action>/<int:id>', methods = ['GET', 'POST'])
+    return redirect(url_for('index'))
+
+@app.route('/news/<action>/<int:id>')
 def news(action, id):
     if action == "get":
         if type(id) is int:
-            news = News.query.filter_by(id=id).first()
+            data = News.query.filter_by(id=id).first()
             return json.dumps(dict(
-                id=news.id, 
-                title=news.title, 
-                content=news.content, 
-                publish_time=str(news.publish_time))
+                id=data.id, 
+                title=data.title, 
+                content=data.content, 
+                publish_time=str(data.publish_time))
             )
 
+    return redirect(url_for('index'))
+
+@app.route('/problems/')
+def problems_no_begin():
+    return problems(0)
+@app.route('/problems/<int:begin>')
+def problems(begin):
+    if type(begin) == int:
+        data = Problem.query.limit(3).offset(begin).all()
+        objects_list = []
+        for row in data:
+            d = collections.OrderedDict()
+            d['id'] = row.id
+            d['title'] = row.title
+            d['memory_limit'] = row.memory_limit
+            d['time_limit'] = row.time_limit
+            d['description'] = row.description
+            d['input'] = row.input
+            d['output'] = row.output
+            d['sample_input'] = row.sample_input
+            d['sample_output'] = row.sample_output
+            d['hint'] = row.hint
+            objects_list.append(d)
+        j = json.dumps(objects_list)
+        print j
+        return render_template('problems.html', problems = objects_list)
+
+    return redirect(url_for('index'))
 
 
 @app.route('/', methods = ['GET', 'POST'])

@@ -1,3 +1,4 @@
+#coding=utf-8
 from application import db
 
 class User(db.Model):
@@ -78,20 +79,19 @@ class Problem(db.Model):
         self.sample_output=sample_output
         self.hint=hint
         
-        
 class Contest(db.Model):
-	"""entity for contest"""
-    id = db.Column(db.Integer, primary_key = True)
+    """entity for contest"""
+    id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.Text,nullable=False)
     description=db.Column(db.Text)
-    end_time=db.Column(db.Datetime,nullable=False)
-    end_time=db.Column(db.Datetime,nullable=False)
-    problems=db.Colunm(db.Text)
+    end_time=db.Column(db.DateTime,nullable=False)
+    end_time=db.Column(db.DateTime,nullable=False)
+    problems=db.Column(db.Text)
     private=db.Column(db.Boolean,nullable=False)
     contestants=db.Column(db.Text)
     ranklist=db.Column(db.Text)
     
-    def  __init__(self,title,description,start_time,end_time,problems,private,contestance,ranklist):
+    def __init__(self,title,description,start_time,end_time,problems,private,contestance,ranklist):
         self.title=title
         self.description=description
         self.start_time=start_time
@@ -100,6 +100,7 @@ class Contest(db.Model):
         self.private=private
         self.contestants=contestants
         self.ranklist=ranklist
+
 	
 	
 class Submission(db.Model):
@@ -107,7 +108,7 @@ class Submission(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id=db.Column(db.Integer,nullable=False)
     problem_id=db.Column(db.Integer,nullable=False)
-    submit_time=db.Column(db.Datetime,nullable=False)
+    submit_time=db.Column(db.DateTime,nullable=False)
     compiler=db.Column(db.Text,nullable=False)
     result=db.Column(db.Text,nullable=False)
     memory_used=db.Column(db.Text)
@@ -116,7 +117,7 @@ class Submission(db.Model):
     original_oj=db.Column(db.Text,nullable=False)
     judger_status=db.Column(db.Text)
     
-    def __init__(self,user_id,problem_id,problem_id,submit_time,compiler,result,memory_used,time_used,code,original_oj,judger_status):
+    def __init__(self,user_id,problem_id,submit_time,compiler,result,memory_used,time_used,code,original_oj,judger_status):
         self.user_id=user_id
         self.problem_id=problem_id
         self.submit_time=submit_time

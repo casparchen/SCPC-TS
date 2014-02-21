@@ -1,21 +1,22 @@
-from flask import render_template
 from application import app
+from application import lm
+from application.models import User
+from flask import g
+from application.forms import user_login_form
 
-@app.route('/')
-@app.route('/index')
-def index():
-    user = { 'nickname': 'SCPC' } # fake user
-    posts = [ # fake array of posts
-        { 
-            'author': { 'nickname': 'John' }, 
-            'body': 'Beautiful day in Portland!' 
-        },
-        { 
-            'author': { 'nickname': 'Susan' }, 
-            'body': 'The Avengers movie was so cool!' 
-        }
-    ]
-    return render_template("index.html",
-        title = 'Home',
-        user = user,
-        posts = posts)
+@lm.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+@app.route('/login', methods = ['GET', 'POST'])
+def login():
+    form = user_login_form()
+    if form.validate_on_submit():
+        return "yes"
+    return "no"
+
+
+
+
+
+

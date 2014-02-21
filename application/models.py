@@ -8,6 +8,18 @@ class User(db.Model):
     email = db.Column(db.String(128), unique = True, nullable = False)
     scpc_oj_username = db.Column(db.String(128), unique = True)
     last_login_time = db.Column(db.DateTime)
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
     
 
     def __init__(self, username, password, email, scpc_oj_username, last_login_time):

@@ -149,21 +149,15 @@
                                             <i class="fa fa-bar-chart-o"></i>News</div>
                                     </div>
                                     <div class="panel-body">
-                                        <table class="table table-hover">
+                                        <table class="table table-hover table-striped1 text-center">
 
                                             <tbody>
-                                                <tr class="active">
-                                                    <td>SCPC Training System 2 正在制作中</td>
-                                                    <td>2014-01-01</td>
+                                                {% for news in news_list %}
+                                                <tr>
+                                                    <td><a href="javascript:open_news({{news.id}});">{{news.title}}</a></td>
+                                                    <td>{{news.publish_time}}</td>
                                                 </tr>
-                                                <tr class="success">
-                                                    <td>SCPC Training System 2 正在制作中</td>
-                                                    <td>2014-01-01</td>
-                                                </tr>
-                                                <tr class="warning">
-                                                    <td>SCPC Training System 2 正在制作中</td>
-                                                    <td>2014-01-01</td>
-                                                </tr>
+                                                {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
@@ -216,6 +210,7 @@
 
 
 
+
     <!-- Core Javascript - via CDN 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
@@ -258,11 +253,36 @@
         	Core.init();
             
             SCPC();
-        
+
         });
+
+        // news window
+        function open_news(id){
+            $.getJSON("news/get/"+id, function(data){
+                $('#news_window_title').html(data.title)
+                $('#news_window_publish_time').text(data.publish_time)
+                $('#news_window_content').text(data.content)
+                $('#news_window').modal();
+            });
+        }
     </script>
 
+<div class="modal fade" id="news_window" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-body">
+        <div class="alert alert-info alert-dismissable">
+            <h2 class="text-center" id="news_window_title"></h2>
+            <div class="text-center" id="news_window_publish_time"></div>
+        </div>
+        <div id="news_window_content">
 
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 
 </html>

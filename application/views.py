@@ -2,7 +2,7 @@
 from flask import g, render_template, redirect, url_for
 from application import app,lm
 from application.forms import form_user_login
-from application.models import User
+from application.models import User, News
 from flask_login import login_user, logout_user, current_user, login_required
 import json
 
@@ -43,14 +43,25 @@ def login(action):
             return json.dumps({"result" : "ok"})
         return json.dumps({"result" : "failed"})
 
-        
-    
+@app.route('/news/<action>/<int:id>', methods = ['GET', 'POST'])
+def news(action, id):
+    if action == "get":
+        if type(id) is int:
+            news = News.query.filter_by(id=id).first()
+            return json.dumps(dict(
+                id=news.id, 
+                title=news.title, 
+                content=news.content, 
+                publish_time=str(news.publish_time))
+            )
+
 
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
 def index():
-    return render_template("index.html")
+    news_list = News.query.limit(8).all()
+    return render_template("index.html", news_list = news_list)
 
 
 

@@ -38,7 +38,6 @@ var SCPC = function () {
                                 alert("Connection error");
                             },
                             success: function(data) {
-                                alert(data);
                                 data = $.parseJSON(data);
                                 
                                 if(data.result == 'ok'){
@@ -57,7 +56,7 @@ var SCPC = function () {
             });
         }
         else{
-            $('#user-area').append("<div class=\"btn-group user-menu open\" id=\"menu_user\"><button type=\"button\" class=\"btn btn-default btn-gradient btn-sm dropdown-toggle\" data-toggle=\"dropdown\"> <span class=\"glyphicons glyphicons-user\"></span> <b id='menu-user-username'></b> </button><button type=\"button\" class=\"btn btn-default btn-gradient btn-sm dropdown-toggle padding-none\" data-toggle=\"dropdown\"> <img src=\"static/img/avatars/default.png\" alt=\"user avatar\" width=\"28\" height=\"28\"> </button><ul class=\"dropdown-menu checkbox-persist animated-short animated flipInY\" role=\"menu\"><li class=\"menu-arrow\"><div class=\"menu-arrow-up\"></div></li><li class=\"dropdown-header\">Your Account <span class=\"pull-right glyphicons glyphicons-user\"></span></li><li><ul class=\"dropdown-items\"><li><div class=\"item-icon\"><i class=\"fa fa-envelope-o\"></i> </div><a class=\"item-message\" href=\"setting\">Setting</a> </li><li class=\"padding-none\"><div class=\"item-icon\"><i class=\"fa fa-envelope-o\"></i> </div><a class=\"item-message\" href=\"user/logout\">Logout</a> </li></li></ul></li></ul></div>");
+            $('#user-area').append("<div class=\"btn-group user-menu\" id=\"menu_user\"><button type=\"button\" class=\"btn btn-default btn-gradient btn-sm dropdown-toggle\" data-toggle=\"dropdown\"> <span class=\"glyphicons glyphicons-user\"></span> <b id='menu-user-username'></b> </button><button type=\"button\" class=\"btn btn-default btn-gradient btn-sm dropdown-toggle padding-none\" data-toggle=\"dropdown\"> <img src=\"static/img/avatars/default.png\" alt=\"user avatar\" width=\"28\" height=\"28\"> </button><ul class=\"dropdown-menu checkbox-persist animated-short animated flipInY\" role=\"menu\"><li class=\"menu-arrow\"><div class=\"menu-arrow-up\"></div></li><li class=\"dropdown-header\">Your Account <span class=\"pull-right glyphicons glyphicons-user\"></span></li><li><ul class=\"dropdown-items\"><li><div class=\"item-icon\"><i class=\"fa fa-envelope-o\"></i> </div><a class=\"item-message\" href=\"setting\">Setting</a> </li><li class=\"padding-none\"><div class=\"item-icon\"><i class=\"fa fa-envelope-o\"></i> </div><a class=\"item-message\" href=\"user/logout\">Logout</a> </li></li></ul></li></ul></div>");
             $('#menu-user-username').text(data.username);
         }
     });

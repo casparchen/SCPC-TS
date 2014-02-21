@@ -11,7 +11,7 @@ print 'create tables'
 db.create_all()
 
 print 'adding user'
-u = User('Chenyi','password1','admin@mrchenyi.com','20081816', datetime.utcnow())
+u = User('chenyi','password','admin@mrchenyi.com','20081816', datetime.utcnow())
 u1 = User('Liusx','password2','asdasd@qq.com','lsx', datetime.utcnow())
 db.session.add(u)
 db.session.add(u1)

@@ -6,7 +6,7 @@
                 <h4 class="modal-title">Login</h4>
             </div>
             <div class="modal-body">
-                <form class="cmxform" id="altForm" method="get">
+                <form class="cmxform" action="user/login" id="loginForm" method="post">
                     {{form.hidden_tag()}}
                     <div class="form-group">
                         <div class="input-group">
@@ -21,7 +21,7 @@
                             <span class="input-group-addon">
                                 <i class="fa fa-key"></i>
                             </span>
-                            {{form.username(class='form-control product', maxlength='10', autocomplete='off', placeholder='Password')}}
+                            {{form.password(class='form-control product', maxlength='10', autocomplete='off', placeholder='Password')}}
                         </div>
                     </div>
                 </form>

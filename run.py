@@ -1,2 +1,9 @@
 from application import app
-app.run(debug=True)
+
+"""
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+"""
+
+app.run(host='0.0.0.0', debug=True)

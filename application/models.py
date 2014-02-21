@@ -38,11 +38,85 @@ class News(db.Model):
         
 class Problem(db.Model):
     """entity for problem"""
+    id = db.Column(db.Integer, primary_key = True)
+    owner_contest_id = db.Column(db.Integer)
+    owner_road_id= db.Column(db.Integer)
+    original_oj= db.Column(db.Text, nullable = False)
+    title= db.Column(db.Text, nullable = False)
+    memory_limit= db.Column(db.Text)
+    time_limit= db.Column(db.Text)
+    description= db.Column(db.Text)
+    input= db.Column(db.Text)
+    output= db.Column(db.Text)
+    sample_input= db.Column(db.Text)
+    sample_output= db.Column(db.Text)
+    hint= db.Column(db.Text)
     
+    def __intit__(owner_contest_id,owner_road_id,original_oj,title,memory_limit,time_limit,description,input,output,sample_input,sample_output,hint):
+        self.owner_contest_id=owner_contest_id
+        self.owner_road_id=owner_road_id
+        self.original_oj=original_oj
+        self.title=title
+        self.memory_limit=memory_limit
+        self.time_limit=time_limit
+        self.description=description
+        self.input=input
+        self.output=output
+        self.sample_input=sample_input
+        self.sample_output=sample_output
+        self.hint=hint
         
-
-
-
+        
+class Contest(db.Model):
+	"""entity for contest"""
+    id = db.Column(db.Integer, primary_key = True)
+    title=db.Column(db.Text,nullable=False)
+    description=db.Column(db.Text)
+    end_time=db.Column(db.Datetime,nullable=False)
+    end_time=db.Column(db.Datetime,nullable=False)
+    problems=db.Colunm(db.Text)
+    private=db.Column(db.Boolean,nullable=False)
+    contestants=db.Column(db.Text)
+    ranklist=db.Column(db.Text)
+    
+	def  __init__(self,title,description,start_time,end_time,problems,private,contestance,ranklist):
+		self.title=title
+		self.description=description
+		self.start_time=start_time
+		self.end_time=end_time
+		self.problems=problems
+		self.private=private
+		self.contestants=contestants
+		self.ranklist=ranklist
+	
+	
+class Submission(db.Model):
+	"""entity for submission"""
+    id = db.Column(db.Integer, primary_key = True)
+    user_id=db.Column(db.Integer,nullable=False)
+    problem_id=db.Column(db.Integer,nullable=False)
+    submit_time=db.Column(db.Datetime,nullable=False)
+    compiler=db.Column(db.Text,nullable=False)
+    result=db.Column(db.Text,nullable=False)
+    memory_used=db.Column(db.Text)
+    time_used=db.Column(db.Text)
+    code=db.Column(db.Text,nullable=False)
+    original_oj=db.Column(db.Text,nullable=False)
+    judger_status=db.Column(db.Text)
+    
+    def __init__(self,user_id,problem_id,problem_id,submit_time,compiler,result,memory_used,time_used,code,original_oj,judger_status):
+        self.user_id=user_id
+        self.problem_id=problem_id
+        self.submit_time=submit_time
+        self.compiler=compiler
+        self.result=result
+        self.memory_used=memory_used
+        self.time_used=time_used
+        self.code=code
+        self.original_oj=original_oj
+        self.judger_status=judger_status
+        
+		
 
 
 

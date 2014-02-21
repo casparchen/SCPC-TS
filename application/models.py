@@ -36,8 +36,6 @@ class News(db.Model):
     def __repr__(self):
         return "<news %r>" % self.title
         
-class Problem(db.Model):
-    """entity for problem"""
     
         
 

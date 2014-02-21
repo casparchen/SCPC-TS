@@ -81,8 +81,6 @@ def problems(begin):
             d['sample_output'] = row.sample_output
             d['hint'] = row.hint
             objects_list.append(d)
-        j = json.dumps(objects_list)
-        print j
         return render_template('problems.html', problems = objects_list)
 
     return redirect(url_for('index'))

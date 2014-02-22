@@ -4327,7 +4327,7 @@ $(function(){
 Combodate input - dropdown date and time picker.    
 Based on [combodate](http://vitalets.github.com/combodate) plugin (included). To use it you should manually include [momentjs](http://momentjs.com).
 
-    <script src="js/moment.min.js"></script>
+    <script src="/static/js/moment.min.js"></script>
    
 Allows to input:
 
@@ -6357,7 +6357,7 @@ Based on [smalot bootstrap-datetimepicker plugin](https://github.com/smalot/boot
 Before usage you should manually include dependent js and css:
 
     <link href="css/datetimepicker.css" rel="stylesheet" type="text/css"></link> 
-    <script src="js/bootstrap-datetimepicker.js"></script>
+    <script src="/static/js/bootstrap-datetimepicker.js"></script>
 
 For **i18n** you should include js file from here: https://github.com/smalot/bootstrap-datetimepicker/tree/master/js/locales
 and set `language` option.  

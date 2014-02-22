@@ -109,29 +109,29 @@ class Contest(db.Model):
 class Submission(db.Model):
     """entity for submission"""
     id = db.Column(db.Integer, primary_key = True)
-    user_id=db.Column(db.Integer,nullable=False)
-    problem_id=db.Column(db.Integer,nullable=False)
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('submissions', lazy='dynamic'))
+    problem_id = db.Column(db.Integer,db.ForeignKey('problem.id'))
+    problem = db.relationship('Problem', backref=db.backref('submissions', lazy='dynamic'))
     submit_time=db.Column(db.DateTime,nullable=False)
     compiler=db.Column(db.Text,nullable=False)
     result=db.Column(db.Text,nullable=False)
     memory_used=db.Column(db.Text)
     time_used=db.Column(db.Text)
     code=db.Column(db.Text,nullable=False)
-    original_oj=db.Column(db.Text,nullable=False)
-    judger_status=db.Column(db.Text)
+    judger_status=db.Column(db.Integer, default=0)
     
-    def __init__(self,user_id,problem_id,submit_time,compiler,result,memory_used,time_used,code,original_oj,judger_status):
-        self.user_id=user_id
-        self.problem_id=problem_id
+    def __init__(self,user,problem,submit_time,compiler,code,result,memory_used,time_used,judger_status):
+        self.user=user
+        self.problem=problem
         self.submit_time=submit_time
         self.compiler=compiler
         self.result=result
         self.memory_used=memory_used
         self.time_used=time_used
         self.code=code
-        self.original_oj=original_oj
         self.judger_status=judger_status
-        
+
 		
 
 

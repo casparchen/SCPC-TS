@@ -126,8 +126,9 @@
         <section id="content">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12 text-center">
                         <h1>{{problem.title}}</h1>
+                        <b>Time Limit:</b><span>{{problem.time_limit}}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Memory Limit:</b><span>{{problem.memory_limit}}</span>
                     </div>
                 </div>
                 <hr class="short" />
@@ -178,19 +179,10 @@
                                             {{problem.hint}}
                                         </div>
                                     </div>
-                                </div>
-                                <div id="tab-problem-submit" class="tab-pane">
-                                    <textarea class="form-control" id="code_to_submit"></textarea>
+                                    <button type="button" id="btn-submit" class="btn btn-light6 btn-gradient">Submit</button>
                                 </div>
                             </div>
-                            <ul class="nav tabs-below tabs-default">
-                                <li class="active">
-                                    <a href="#tab-problem" data-toggle="tab">Problem</a>
-                                </li>
-                                <li class="">
-                                    <a href="#tab-problem-submit" data-toggle="tab">Submit</a>
-                                </li>
-                            </ul>
+                            
                         </div>
                     </div>
                 </div>
@@ -245,20 +237,64 @@
     <!--<script type="text/javascript" src="/static/js/plugins.js"></script>-->
     <script type="text/javascript" src="/static/js/custom.js"></script>
     <script type="text/javascript">
-        jQuery(document).ready(function() {
-        	  
+        jQuery(document).ready(function() {	  
         	// Init Theme Core 	  
         	Core.init();
             SCPC();
-              
-            $('#code_to_submit').height($('#tab-problem').height());
-            $('#code_to_submit').css("maxHeight", $('#tab-problem').height());
-            $('#code_to_submit').css("maxWidth", $('#tab-problem').width());
+
+            $('#btn-submit').click(function(){
+                $.getJSON("/user/login_status", function(data){
+                    if(data.login_status == false){
+                        alert('Please login first.');
+                    }else{
+                        $('#wnd-submit').modal();
+                        $('#code_to_submit').height($('#tab-problem').height()*3/5);
+                        $('#code_to_submit').css("maxHeight", $('#tab-problem').height()*3/5);
+                        $('#code_to_submit').css("maxWidth", '560px');
+                        $('#code_to_submit').css("minWidth", '560px');
+                        $('#btn-submit-confirm').click(function(){
+                            $.ajax({
+                              url: '/submit',
+                              method: 'POST',
+                              data: {
+                                code:$('#code_to_submit').val(),
+                                problem_id:{{problem.id}}
+                              },
+                              success: function(data){
+                                data = $.parseJSON(data);
+                                if(data.result == "ok"){
+                                    window.location.href = "/submissions";
+                                }else{
+                                    alert('Submit failed. Responding message: [' + data.result + "]");
+                                }
+                              },
+                              type: 'json'
+                            });
+                        });
+                    }
+                });
+            });
         
         
         });
     </script>
+<div class="modal fade" id="wnd-submit" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div id="news_window_content">
+            <div id="tab-problem-submit" class="tab-pane">
+                <textarea class="form-control" id="code_to_submit"></textarea>
+                <br/>
+                <button type="button" id="btn-submit-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 </body>
-
 </html>

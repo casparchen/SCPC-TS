@@ -1,7 +1,7 @@
 #coding=utf-8
 
 from application import db
-from application.models import User, News, Problem
+from application.models import User, News, Problem, Submission
 from datetime import datetime
 
 print 'Clearing old database...'
@@ -31,8 +31,6 @@ for i in range(20):
 
 print "adding problems"
 problems = []
-p = Problem(None, None, "original_oj", "A + B", "128k", "1s", "calculate A+B.", "two numbers a and b.", "print the sum of a and b", "1 9", "10", "this is hint")
-db.session.add(p)
 for i in range(20):
     p = Problem(None, None, u"original_oj", u"Problem " + str(i), u"128k", u"1s", u"description", u"input", u"output", u"sample_input", u"sample_output", u"hint")
     problems.append(p)
@@ -40,7 +38,11 @@ for i in range(20):
 for i in range(20):
     db.session.add(problems[i])
 
-
+print "adding submission"
+submissions = []
+for i in range(20):
+    s = Submission(users[5], problems[1], datetime.utcnow(), 'C', 'print(123)', 'pending', None, None, 0)
+    db.session.add(s)
 
 db.session.commit()
 

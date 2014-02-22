@@ -1,14 +1,14 @@
 #coding=utf-8
-from flask import g, render_template, redirect, url_for
-from application import app,lm, cache
+from flask import g, render_template, redirect, url_for, request
+from application import app,lm, cache, db
 from application.forms import form_user_login
 from application.models import User, News, Problem, Contest, Submission
 from flask_login import login_user, logout_user, current_user, login_required
 import json
 import collections
 import math
-
-
+from datetime import datetime
+    
 
 @lm.user_loader
 def load_user(id):
@@ -32,7 +32,6 @@ def login(action):
         return render_template('form_login.html', form = form)
     elif action == "login":
         form = form_user_login()
-        print form.username.data,form.password.data
         if form.validate_on_submit():
             u = User.query.filter_by(username=form.username.data, password=form.password.data).first()
             if u is not None:
@@ -47,10 +46,9 @@ def login(action):
 
     return redirect(url_for('index'))
 
-@cache.cached(timeout=606)
 @app.route('/news/<action>/<int:id>/')
+@cache.cached(timeout=60)
 def news(action, id):
-    print id
     if action == "get":
         if type(id) is int:
             data = News.query.filter_by(id=id).first()
@@ -63,9 +61,30 @@ def news(action, id):
 
     return redirect(url_for('index'))
 
+@app.route('/submit', methods=['POST'])
+@login_required
+def submit():
+    if request.method == 'POST':
+        try:
+            if len(request.form['code']) < 20:
+                raise Exception("Code is too short. 20+ required.")
+            user = g.user
+            problem = int(request.form['problem_id'])
+            problem = Problem.query.get(problem)
+            if problem is None:
+                raise Exception("Problem not found.")
+            smt = Submission(user, problem, datetime.utcnow(), 'C', request.form['code'], 'pending', "0K", "0MS", 0)
+            db.session.add(smt)
+            db.session.commit()
+            return json.dumps({"result": "ok"})
+        except Exception, e:
+            return json.dumps({"result": str(e)})
+    return json.dumps({"result": "Only support POST request."})
+
+
 @cache.cached(timeout=60)
 @app.route('/problems/')
-def problems_no_begin():
+def problems_no_page():
     return problems(0)
 
 @cache.cached(timeout=60)
@@ -97,8 +116,8 @@ def problems(page):
 
     return redirect(url_for('index'))
 
-@cache.cached(timeout=60)
 @app.route('/problem/<int:id>/')
+@cache.cached(timeout=60)
 def problem(id):
     if type(id) == int:
         id = 1 if id < 1 else id
@@ -107,6 +126,39 @@ def problem(id):
             site_name = app.config['SCPC_TS_SITE_NAME'],
             problem = p
             )
+
+@cache.cached(timeout=60)
+@app.route('/submissions/')
+def submissions_no_page():
+    return submissions(0)
+
+@cache.cached(timeout=60)
+@app.route('/submissions/<int:page>/')
+def submissions(page):
+    if type(page) == int:
+        page = 0 if page<1 else page-1
+        data = Submission.query.order_by(db.desc(Submission.id)).offset(page*10).limit(10).all()
+        objects_list = []
+        for row in data:
+            d = collections.OrderedDict()
+            d['id'] = row.id
+            d['problem_title'] = row.problem.title
+            d['username'] = row.user.username
+            d['result'] = row.result
+            d['memory_used'] = row.memory_used
+            d['time_used'] = row.time_used
+            d['compiler'] = row.compiler
+            d['code'] = len(row.code)
+            d['submit_time'] = row.submit_time
+            objects_list.append(d)
+        return render_template('submissions.html', 
+            submissions = objects_list,
+            total_page = int(math.ceil(Submission.query.count()/10)),
+            current_page = page + 1,
+            site_name = app.config['SCPC_TS_SITE_NAME']
+            )
+
+    return redirect(url_for('index'))
 
 @app.route('/road/')
 def road():
@@ -121,9 +173,9 @@ def contests():
     return road()
 
 
-@cache.cached(timeout=60)
 @app.route('/')
 @app.route('/index')
+@cache.cached(timeout=60)
 def index():
     news_list = News.query.limit(8).all()
     return render_template("index.html", 

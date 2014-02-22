@@ -149,7 +149,7 @@
                                         <tr>
                                             <td>{{p.id}}</td>
                                             <td>
-                                                <a href="problem/{{p.id}}">{{p.title}}</a>
+                                                <a href="/problem/{{p.id}}">{{p.title}}</a>
                                             </td>
                                             <td>N/A</td>
                                         </tr>    
@@ -220,8 +220,8 @@
             SCPC();
               
             var options = {
-        		currentPage: 3,
-        		totalPages: 1000,
+        		currentPage: {{current_page}},
+        		totalPages: {{total_page}},
                 
         		shouldShowPage:function(type, page, current){
         			switch(type)
@@ -234,6 +234,10 @@
         			}
         		},
         		onPageChanged: function(e,oldPage,newPage){
+                    if({{current_page}} != newPage){
+                        window.location.href = '/problems/' + newPage;
+                    }
+                    //alert();
         			//$('#paginator-content').text("Current page changed, old: "+oldPage+" new: "+newPage);
         		}
         	}

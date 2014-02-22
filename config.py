@@ -10,4 +10,7 @@ SCPC_TS_SITE_NAME = 'SCPC Training System V2'
 CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
+# Cache
+CACHE_TYPE = 'simple'
+
 

@@ -56,6 +56,7 @@ class Problem(db.Model):
     owner_contest_id = db.Column(db.Integer)
     owner_road_id= db.Column(db.Integer)
     original_oj= db.Column(db.Text, nullable = False)
+    original_oj_id= db.Column(db.Text, nullable = False)
     title= db.Column(db.Text, nullable = False)
     memory_limit= db.Column(db.Text)
     time_limit= db.Column(db.Text)
@@ -66,7 +67,7 @@ class Problem(db.Model):
     sample_output= db.Column(db.Text)
     hint= db.Column(db.Text)
 
-    def __init__(self,owner_contest_id,owner_road_id,original_oj,title,memory_limit,time_limit,description,input,output,sample_input,sample_output,hint):
+    def __init__(self,owner_contest_id,owner_road_id,original_oj,original_oj_id,title,memory_limit,time_limit,description,input,output,sample_input,sample_output,hint):
         self.owner_contest_id = owner_contest_id
         self.owner_road_id = owner_road_id
         self.original_oj = original_oj
@@ -79,6 +80,7 @@ class Problem(db.Model):
         self.sample_input = sample_input
         self.sample_output = sample_output
         self.hint = hint
+        self.original_oj_id = original_oj_id
         
         
         
@@ -120,8 +122,10 @@ class Submission(db.Model):
     time_used=db.Column(db.Text)
     code=db.Column(db.Text,nullable=False)
     judger_status=db.Column(db.Integer, default=0)
+    original_oj_submit_id=db.Column(db.Integer, default=0)
+    original_oj= db.Column(db.Text, nullable = False)
     
-    def __init__(self,user,problem,submit_time,compiler,code,result,memory_used,time_used,judger_status):
+    def __init__(self,user,problem,submit_time,compiler,code,result,memory_used,time_used,judger_status,original_oj):
         self.user=user
         self.problem=problem
         self.submit_time=submit_time
@@ -131,6 +135,7 @@ class Submission(db.Model):
         self.time_used=time_used
         self.code=code
         self.judger_status=judger_status
+        self.original_oj = original_oj
 
 		
 

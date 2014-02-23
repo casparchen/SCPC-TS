@@ -68,12 +68,14 @@ def submit():
         try:
             if len(request.form['code']) < 20:
                 raise Exception("Code is too short. 20+ required.")
+            if request.form['compiler'] != 'gcc' or request.form['compiler'] != 'g++' or request.form['compiler'] != 'java':
+                raise Exception("Please select compiler.")
             user = g.user
             problem = int(request.form['problem_id'])
             problem = Problem.query.get(problem)
             if problem is None:
                 raise Exception("Problem not found.")
-            smt = Submission(user, problem, datetime.utcnow(), 'C', request.form['code'], 'pending', "0K", "0MS", 0)
+            smt = Submission(user, problem, datetime.utcnow(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0)
             db.session.add(smt)
             db.session.commit()
             return json.dumps({"result": "ok"})

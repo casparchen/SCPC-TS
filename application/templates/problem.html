@@ -258,7 +258,8 @@
                               method: 'POST',
                               data: {
                                 code:$('#code_to_submit').val(),
-                                problem_id:{{problem.id}}
+                                problem_id:{{problem.id}},
+                                compiler:$('#selected_compiler').val()
                               },
                               success: function(data){
                                 data = $.parseJSON(data);
@@ -286,7 +287,17 @@
             <div id="tab-problem-submit" class="tab-pane">
                 <textarea class="form-control" id="code_to_submit"></textarea>
                 <br/>
-                <button type="button" id="btn-submit-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
+                <div class='col-md-3'>
+                    <select class="form-control" width='72px' id="selected_compiler">
+                        <option>gcc</option>
+                        <option>g++</option>
+                        <option>java</option>
+                    </select>
+                </div>
+                <div class='col-md-3'>
+                    <button type="button" id="btn-submit-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
+                </div>
+                <div class="clearfix"></div>
             </div>
         </div>
       </div>

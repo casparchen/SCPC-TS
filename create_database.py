@@ -40,8 +40,8 @@ for i in range(12):
 
 print "adding submission"
 submissions = []
-for i in range(12):
-    s = Submission(users[5], problems[0], datetime.utcnow(), 'g++', '#include<stdio.h>\\nint main(){\\nint a,b;\\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\\nprintf(\"%d\\n\",a+b);\\n}\\n}', 'pending', None, None, 0, problems[0].original_oj)
+for i in range(20):
+    s = Submission(users[5], problems[0], datetime.utcnow(), 'g++', '#include<stdio.h>\nint main(){\nint a,b;\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\nprintf(\"%d\\n\",a+b);\n}\n}\n', 'pending', None, None, 0, problems[0].original_oj)
     db.session.add(s)
 
 db.session.commit()

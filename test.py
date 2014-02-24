@@ -14,12 +14,5 @@ a = guard.request_new_submission_by_databse()
 print a.problem
 hdoj.judge(a).start()
 """
-
 from judger import guard
 guard.start()
-
-
-
-
-
-

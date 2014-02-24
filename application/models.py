@@ -114,7 +114,7 @@ class Submission(db.Model):
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
     user = db.relationship('User', backref=db.backref('submissions', lazy='dynamic'))
     problem_id = db.Column(db.Integer,db.ForeignKey('problem.id'))
-    problem = db.relationship('Problem', backref=db.backref('submissions', lazy='dynamic'))
+    problem = db.relationship('Problem', backref=db.backref('submissions', lazy='dynamic'), lazy='select')
     submit_time=db.Column(db.DateTime,nullable=False)
     compiler=db.Column(db.Text,nullable=False)
     result=db.Column(db.Text,nullable=False)

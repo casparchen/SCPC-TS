@@ -4,14 +4,24 @@ from application import db
 from application.models import Submission
 from judger.HDOJ import HDOJ
 from sqlalchemy import or_, and_
+from sqlalchemy.exc import SQLAlchemyError
 import threading
 
 def daemon(th, timeout, account):
+    try:
         th.setDaemon(True)
         th.start()
         th.join(timeout)
         print "[Task #%s]: daemon killed or stoped." % th.submission.id
         account['used'] = False
+    except Exception, e:
+        print "Warning: __init__.daemon()"
+        print e
+    finally:
+        global guard
+        guard.remove_task(th.submission)
+        th.account['used'] = False
+        
 
 class SCPC_Judger_Guard(object):
     """guard"""
@@ -34,14 +44,18 @@ class SCPC_Judger_Guard(object):
             
 
     def judge(self, task):
-        spare_account = self.request_spare_judger(task.original_oj)
-        spare_account['used'] = True
-        print "select accout: ", spare_account
-        j = self.judgers[task.original_oj]['oj'](spare_account)
+        try:
+            spare_account = self.request_spare_judger(task.original_oj)
+            spare_account['used'] = True
+            print "[Main] select accout: ", spare_account['username']
+            j = self.judgers[task.original_oj]['oj'](spare_account)
+            
+            dm = threading.Thread(target=daemon,args=(j.judge(task), 12, spare_account))
+            print "[Task #%s]: start daemon" % task.id
+            dm.start()
+        except Exception, e:
+            print "Warning: __init__.judge()"
         
-        dm = threading.Thread(target=daemon,args=(j.judge(task), 12, spare_account))
-        print "[Task #%s]: start daemon" % task.id
-        dm.start()
 
 
     def request_spare_judger(self, oj):
@@ -66,7 +80,14 @@ class SCPC_Judger_Guard(object):
                 submission.judger_status = int(time.time())
                 db.session.commit()
             return submission
+        except SQLAlchemyError, e:
+            print "Warning: __init__.request_new_submission_by_databse()"
+            print "rollback"
+            db.session.rollback()
+            return None
         except Exception, e:
+            print "Warning: __init__.request_new_submission_by_databse()"
+            print e
             return None
         
 
@@ -75,7 +96,7 @@ class SCPC_Judger_Guard(object):
             self.judgers[judger['oj'].oj_name] = judger
 
     def remove_task(self, task):
-        print "[Task #%s]: Removed"
+        print "[Task #%s]: Removed" % task.id
         if task in self.tasks:
             self.tasks.remove(task)
 

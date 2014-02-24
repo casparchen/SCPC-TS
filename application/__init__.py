@@ -3,6 +3,7 @@ from flask.app import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cache import Cache
+from flask_admin import Admin
 
 # Flask instance
 app = Flask(__name__)
@@ -23,6 +24,10 @@ from application import models
 
 # Views
 from application import views
+
+# Admin system
+admin = Admin(app, name="Admin System - " + app.config['SCPC_TS_SITE_NAME'])
+from application import admins
 
 
 

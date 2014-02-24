@@ -18,6 +18,9 @@ for i in range(50):
 
 for i in range(50):
     db.session.add(users[i])
+chenyi = User('admin', '123456', 'qq@qq.com', 'scpc_oj_username', datetime.utcnow())
+chenyi.group = "admin|user"
+db.session.add(chenyi)
 
 print 'adding news'
 news = []

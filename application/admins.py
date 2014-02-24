@@ -1,13 +1,53 @@
 from application import admin, models, db
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
+import flask_login
 from flask import request
 import urllib2,re
 import json
 
 
-class Add_HDOJ_Problem_View(BaseView):
 
+class MyModelView(ModelView):
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return flask_login.current_user.is_admin()
+
+class MyProblemModelView(ModelView):
+    column_list = ('owner_contest_id', 'owner_road_id', 'original_oj', 'original_oj_id', 'title', 'hint')
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage problem' in flask_login.current_user.group.split('|'))
+
+class MyUserModelView(ModelView):
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage user' in flask_login.current_user.group.split('|'))
+
+class MyNewsModelView(ModelView):
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage news' in flask_login.current_user.group.split('|'))
+
+class MyContestModelView(ModelView):
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage contest' in flask_login.current_user.group.split('|'))
+
+class MySubmissionModelView(ModelView):
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage submission' in flask_login.current_user.group.split('|'))
+        
+
+
+class Add_HDOJ_Problem_View(BaseView):
     @expose('/')
     def index(self):
         return self.render('admin/request_id.html')
@@ -51,15 +91,21 @@ class Add_HDOJ_Problem_View(BaseView):
             return self.render('admin/problem_form.html', problem=problem)
         except Exception, e:
             print e
-            return ""
-        return 'last_sub'
+            return "failed"
+
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage problem' in flask_login.current_user.group.split('|'))
         
 
-admin.add_view(ModelView(models.User, db.session))
-admin.add_view(ModelView(models.Problem, db.session, category='Problem'))
-admin.add_view(ModelView(models.News, db.session))
-admin.add_view(ModelView(models.Contest, db.session))
-admin.add_view(ModelView(models.Submission, db.session))
+
+
+admin.add_view(MyUserModelView(models.User, db.session))
+admin.add_view(MyProblemModelView(models.Problem, db.session, category='Problem'))
+admin.add_view(MyNewsModelView(models.News, db.session))
+admin.add_view(MyContestModelView(models.Contest, db.session))
+admin.add_view(MySubmissionModelView(models.Submission, db.session))
 admin.add_view(Add_HDOJ_Problem_View(name='Add HDOJ Problem', category='Problem'))
 
 

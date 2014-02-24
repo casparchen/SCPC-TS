@@ -50,7 +50,7 @@ class SCPC_Judger_Guard(object):
             print "[Main] select accout: ", spare_account['username']
             j = self.judgers[task.original_oj]['oj'](spare_account)
             
-            dm = threading.Thread(target=daemon,args=(j.judge(task), 12, spare_account))
+            dm = threading.Thread(target=daemon,args=(j.judge(task), 30, spare_account))
             print "[Task #%s]: start daemon" % task.id
             dm.start()
         except Exception, e:

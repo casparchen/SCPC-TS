@@ -12,11 +12,11 @@ db.create_all()
 
 print 'adding user'
 users = []
-for i in range(10):
+for i in range(50):
     u = User(u'user' + str(i),u'password' + str(i),u'admin@mrchenyi.com' + str(i),u'20081816' + str(i), datetime.utcnow())
     users.append(u)
 
-for i in range(10):
+for i in range(50):
     db.session.add(users[i])
 
 print 'adding news'

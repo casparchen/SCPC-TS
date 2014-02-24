@@ -127,8 +127,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 text-center">
-                        <h1>{{problem.title}}</h1>
-                        <b>Time Limit:</b><span>{{problem.time_limit}}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Memory Limit:</b><span>{{problem.memory_limit}}</span>
+                        <h1>{{problem.title|safe}}</h1>
+                        <b>Time Limit:</b><span>{{problem.time_limit|safe}}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Memory Limit:</b><span>{{problem.memory_limit|safe}}</span>
                     </div>
                 </div>
                 <hr class="short" />
@@ -141,42 +141,42 @@
                                     <h3>Description</h3>
                                     <div class="well">
                                         <div id="tab-problem-content">
-                                            {{problem.description}}
+                                            {{problem.description|safe}}
                                         </div>
                                     </div>
 
                                     <h3>Input</h3>
                                     <div class="well">
                                         <div id="tab-problem-content">
-                                            {{problem.input}}
+                                            {{problem.input|safe}}
                                         </div>
                                     </div>
 
                                     <h3>Output</h3>
                                     <div class="well">
                                         <div id="tab-problem-content">
-                                            {{problem.output}}
+                                            {{problem.output|safe}}
                                         </div>
                                     </div>
 
                                     <h3>Sample Input</h3>
                                     <div class="well">
                                         <div id="tab-problem-content">
-                                            {{problem.sample_input}}
+                                            {{problem.sample_input|safe}}
                                         </div>
                                     </div>
 
                                     <h3>Sample Output</h3>
                                     <div class="well">
                                         <div id="tab-problem-content">
-                                            {{problem.sample_output}}
+                                            {{problem.sample_output|safe}}
                                         </div>
                                     </div>
 
                                     <h3>Hint</h3>
                                     <div class="well">
                                         <div id="tab-problem-content">
-                                            {{problem.hint}}
+                                            {{problem.hint|safe}}
                                         </div>
                                     </div>
                                     <button type="button" id="btn-submit" class="btn btn-light6 btn-gradient">Submit</button>
@@ -289,9 +289,9 @@
                 <br/>
                 <div class='col-md-3'>
                     <select class="form-control" width='72px' id="selected_compiler">
-                        <option>gcc</option>
-                        <option>g++</option>
-                        <option>java</option>
+                        <option value='gcc'>gcc</option>
+                        <option value='g++'>g++</option>
+                        <option value='java'>java</option>
                     </select>
                 </div>
                 <div class='col-md-3'>

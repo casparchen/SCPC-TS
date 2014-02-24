@@ -47,7 +47,7 @@ def login(action):
     return redirect(url_for('index'))
 
 @app.route('/news/<action>/<int:id>/')
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 def news(action, id):
     if action == "get":
         if type(id) is int:
@@ -68,14 +68,14 @@ def submit():
         try:
             if len(request.form['code']) < 20:
                 raise Exception("Code is too short. 20+ required.")
-            if request.form['compiler'] != 'gcc' or request.form['compiler'] != 'g++' or request.form['compiler'] != 'java':
+            if request.form['compiler'] != 'gcc' and request.form['compiler'] != 'g++' and request.form['compiler'] != 'java':
                 raise Exception("Please select compiler.")
             user = g.user
             problem = int(request.form['problem_id'])
             problem = Problem.query.get(problem)
             if problem is None:
                 raise Exception("Problem not found.")
-            smt = Submission(user, problem, datetime.utcnow(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0)
+            smt = Submission(user, problem, datetime.utcnow(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj)
             db.session.add(smt)
             db.session.commit()
             return json.dumps({"result": "ok"})
@@ -84,12 +84,12 @@ def submit():
     return json.dumps({"result": "Only support POST request."})
 
 
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 @app.route('/problems/')
 def problems_no_page():
     return problems(0)
 
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 @app.route('/problems/<int:page>/')
 def problems(page):
     if type(page) == int:
@@ -111,7 +111,7 @@ def problems(page):
             objects_list.append(d)
         return render_template('problems.html', 
             problems = objects_list,
-            total_page = int(math.ceil(Problem.query.count()/10)),
+            total_page = int(math.ceil(Problem.query.count()/10.0)),
             current_page = page + 1,
             site_name = app.config['SCPC_TS_SITE_NAME']
             )
@@ -119,7 +119,7 @@ def problems(page):
     return redirect(url_for('index'))
 
 @app.route('/problem/<int:id>/')
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 def problem(id):
     if type(id) == int:
         id = 1 if id < 1 else id
@@ -129,12 +129,12 @@ def problem(id):
             problem = p
             )
 
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 @app.route('/submissions/')
 def submissions_no_page():
     return submissions(0)
 
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 @app.route('/submissions/<int:page>/')
 def submissions(page):
     if type(page) == int:
@@ -155,7 +155,7 @@ def submissions(page):
             objects_list.append(d)
         return render_template('submissions.html', 
             submissions = objects_list,
-            total_page = int(math.ceil(Submission.query.count()/10)),
+            total_page = int(math.ceil(Submission.query.count()/10.0)),
             current_page = page + 1,
             site_name = app.config['SCPC_TS_SITE_NAME']
             )

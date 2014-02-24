@@ -5,6 +5,7 @@ import flask_login
 from flask import request
 import urllib2,re
 import json
+import sys
 
 
 
@@ -69,10 +70,12 @@ class Add_HDOJ_Problem_View(BaseView):
     def request_1(self, hdoj_id):
         last_sub = []
         try:
+            reload(sys)
+            sys.setdefaultencoding('gb2312')
             problem_url = "http://acm.hdu.edu.cn/showproblem.php?pid=" + str(hdoj_id)
             response = urllib2.urlopen(problem_url)
             text  = response.read()
-            match = re.compile('<h1 style=\'color:#1A5CC8\'>(.*?)<\/h1>.*?Time Limit.*?\/(\d*).*?Problem Description.*?<div class=panel_content>(.*?)<\/div>.*?Input.*?<div class=panel_content>(.*?)<\/div>.*?Output.*?<div class=panel_content>(.*?)<\/div>.*?Sample Input.*?<div class=panel_content><pre>.*?>(.*?)<\/.*?<\/pre>.*?Sample Output.*?<pre>.*?>(.*?)<\/.*?<\/pre>', re.M | re.S)
+            match = re.compile('<h1 style=\'color:#1A5CC8\'>(.*?)<\/h1>.*?Time Limit.*?\/(\d*).*?Problem Description.*?<div class=panel_content>(.*?)<\/div>.*?Input.*?<div class=panel_content>(.*?)<\/div>.*?Output.*?<div class=panel_content>(.*?)<\/div>.*?Sample Input.*?<div class=panel_content><pre>.*?>(.*?)<\/.*?<\/pre>.*?Sample Output.*?<pre>.*?>(.*?)<\/?div.*?<\/pre>', re.M | re.S)
             last_sub = match.findall(text)
             print last_sub
             problem = {}

@@ -12,7 +12,7 @@ def daemon(th, timeout, account):
         th.setDaemon(True)
         th.start()
         th.join(timeout)
-        print "[Task #%s]: daemon killed or stoped." % th.submission.id
+        #print "[Task #%s]: daemon killed or stoped." % th.submission.id
         account['used'] = False
     except Exception, e:
         print "Warning: __init__.daemon()"
@@ -34,7 +34,7 @@ class SCPC_Judger_Guard(object):
 
     def start(self):
         while True:
-            print "[Main] current tasks:" + str(len(self.tasks))
+            #print "[Main] current tasks:" + str(len(self.tasks))
             time.sleep(3)
             if len(self.tasks) == self.MAX_JUDGE_TASK: continue
             submission = self.request_new_submission_by_databse()
@@ -47,11 +47,11 @@ class SCPC_Judger_Guard(object):
         try:
             spare_account = self.request_spare_judger(task.original_oj)
             spare_account['used'] = True
-            print "[Main] select accout: ", spare_account['username']
+            #print "[Main] select accout: ", spare_account['username']
             j = self.judgers[task.original_oj]['oj'](spare_account)
             
             dm = threading.Thread(target=daemon,args=(j.judge(task), 30, spare_account))
-            print "[Task #%s]: start daemon" % task.id
+            #print "[Task #%s]: start daemon" % task.id
             dm.start()
         except Exception, e:
             print "Warning: __init__.judge()"

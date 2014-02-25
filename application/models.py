@@ -1,5 +1,6 @@
 #coding=utf-8
 from application import db
+from datetime import datetime
 
 class User(db.Model):
     """entity for user"""
@@ -33,7 +34,7 @@ class User(db.Model):
             return False
 
 
-    def __init__(self, username, password, email, scpc_oj_username, last_login_time):
+    def __init__(self, username="", password="", email="", scpc_oj_username="", last_login_time=datetime.utcnow()):
         self.username = username
         self.password = password
         self.email = email
@@ -51,7 +52,7 @@ class News(db.Model):
     content = db.Column(db.Text)
 
 
-    def __init__(self, publish_time, title, content):
+    def __init__(self, publish_time=datetime.utcnow(), title="", content=""):
         self.publish_time = publish_time
         self.title = title
         self.content = content
@@ -106,7 +107,7 @@ class Contest(db.Model):
     contestants=db.Column(db.Text)
     ranklist=db.Column(db.Text)
     
-    def __init__(self,title,description,start_time,end_time,problems,private,contestance,ranklist):
+    def __init__(self,title="",description="",start_time=datetime.utcnow(),end_time=datetime.utcnow(),problems="",private=False,contestants="",ranklist=""):
         self.title=title
         self.description=description
         self.start_time=start_time
@@ -134,8 +135,9 @@ class Submission(db.Model):
     judger_status=db.Column(db.Integer, default=0)
     original_oj_submit_id=db.Column(db.Integer, default=0)
     original_oj= db.Column(db.Text, nullable = False)
+    original_oj_id= db.Column(db.Text, nullable = False)
     
-    def __init__(self,user,problem,submit_time,compiler,code,result,memory_used,time_used,judger_status,original_oj):
+    def __init__(self,user,problem,submit_time,compiler,code,result,memory_used,time_used,judger_status,original_oj,original_oj_id):
         self.user=user
         self.problem=problem
         self.submit_time=submit_time
@@ -146,6 +148,7 @@ class Submission(db.Model):
         self.code=code
         self.judger_status=judger_status
         self.original_oj = original_oj
+        self.original_oj_id = original_oj_id
 
 
 

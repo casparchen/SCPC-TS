@@ -6,6 +6,8 @@ from judger.HDOJ import HDOJ
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import SQLAlchemyError
 import threading
+from flask_sqlalchemy import SQLAlchemy
+from application import app
 
 def daemon(th, timeout, account):
     try:
@@ -68,6 +70,7 @@ class SCPC_Judger_Guard(object):
 
     def request_new_submission_by_databse(self):
         try:
+            """
             A = False
             B = False
             for x in self.judgers:
@@ -75,15 +78,21 @@ class SCPC_Judger_Guard(object):
                     A = or_(A, Submission.original_oj==str(x))
                     B = True
             if B != True: return None
+            db.session.flush()
             submission = Submission.query.filter(and_(Submission.judger_status==0, A)).first()
+            """
+            session = db.create_scoped_session()
+            submission = session.execute("select * from submission where judger_status=0 and original_oj='HDOJ' limit 1").first()
             if submission is not None:
-                submission.judger_status = int(time.time())
-                db.session.commit()
+                session.execute("update submission set judger_status=%d where id=%d" % (time.time(), submission.id))
+            session.flush()
+            session.commit()
             return submission
         except SQLAlchemyError, e:
             print "Warning: __init__.request_new_submission_by_databse()"
             print "rollback"
             db.session.rollback()
+            print e
             return None
         except Exception, e:
             print "Warning: __init__.request_new_submission_by_databse()"
@@ -96,7 +105,7 @@ class SCPC_Judger_Guard(object):
             self.judgers[judger['oj'].oj_name] = judger
 
     def remove_task(self, task):
-        print "[Task #%s]: Removed" % task.id
+        print "[Task #%s]: Done." % task.id
         if task in self.tasks:
             self.tasks.remove(task)
 

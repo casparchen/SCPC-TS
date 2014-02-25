@@ -64,7 +64,7 @@ class HDOJ(SCPC_Judger):
             if self.submission.compiler == 'java': compiler = '5'
 
             #Post数据 
-            postData = {'problemid' : self.submission.problem.original_oj_id, 'check' : '', 'language' : compiler, 'usercode' : self.submission.code}   
+            postData = {'problemid' : self.submission.original_oj_id, 'check' : '', 'language' : compiler, 'usercode' : self.submission.code}   
             postData = urllib.urlencode(postData)
 
             urllib2.urlopen(submit_url)  
@@ -92,30 +92,38 @@ class HDOJ(SCPC_Judger):
             if last_sub == None or last_sub == []:
                 time.sleep(1)
                 continue
+            #print last_sub
             return last_sub
         
     def run(self):
         try:
             self.hdoj_last_submission_id = self.request_last_submission()[0][0]
+            #print "[Task %s]: Last ID: %s" % (self.submission.id, self.hdoj_last_submission_id)
             if self.submit() == False:
                 raise Exception("Error: Submit failed.")
             while True:
                 current_sub = self.request_last_submission()
                 if self.hdoj_last_submission_id == current_sub[0][0]:
-                    time.sleep(3)
+                    time.sleep(2)
                     continue
                 if current_sub[0][1] != 'Queuing' and current_sub[0][1] != 'Running' and current_sub[0][1] != 'Compiling':
-                    Submission.query.filter_by(id=self.submission.id).update(dict(result=current_sub[0][1],judger_status=-1,memory_used=current_sub[0][3],time_used = current_sub[0][2],original_oj_submit_id = current_sub[0][0]))
-                    db.session.commit()
+                    session = db.create_scoped_session()
+                    session.execute("UPDATE submission set result='%s', judger_status=-1, memory_used='%s', time_used='%s', original_oj_submit_id=%s WHERE id=%d" % (current_sub[0][1],current_sub[0][3],current_sub[0][2],current_sub[0][0],self.submission.id))
+                    session.flush()
+                    session.commit()
                     break
-                Submission.query.filter_by(id=self.submission.id).update(dict(result=current_sub[0][1]))
-                db.session.commit()
+                session = db.create_scoped_session()
+                session.execute("UPDATE submission set result='%s' WHERE id=%d" % (current_sub[0][1],self.submission.id))
+                session.flush()
+                session.commit()
         except SQLAlchemyError, e:
             print "Warning: HDOJ.run()"
             print "rollback"
             db.session.rollback()
+            print e
         except Exception, e:
             print "Warning: HDOJ.run()"
+            print e
 
 
 

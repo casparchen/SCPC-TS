@@ -75,7 +75,7 @@ def submit():
             problem = Problem.query.get(problem)
             if problem is None:
                 raise Exception("Problem not found.")
-            smt = Submission(user, problem, datetime.utcnow(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj)
+            smt = Submission(user, problem, datetime.utcnow(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj, problem.original_oj_id)
             db.session.add(smt)
             db.session.commit()
             return json.dumps({"result": "ok"})
@@ -177,7 +177,7 @@ def contests():
 
 @app.route('/')
 @app.route('/index')
-@cache.cached(timeout=60)
+@cache.cached(timeout=5)
 def index():
     news_list = News.query.limit(8).all()
     return render_template("index.html", 

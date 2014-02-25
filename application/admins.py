@@ -16,6 +16,7 @@ class MyModelView(ModelView):
         return flask_login.current_user.is_admin()
 
 class MyProblemModelView(ModelView):
+    can_create = False
     column_list = ('owner_contest_id', 'owner_road_id', 'original_oj', 'original_oj_id', 'title', 'hint')
     def is_accessible(self):
         if flask_login.current_user.get_id() is None:
@@ -41,6 +42,7 @@ class MyContestModelView(ModelView):
         return ('manage contest' in flask_login.current_user.group.split('|'))
 
 class MySubmissionModelView(ModelView):
+    can_create = False
     def is_accessible(self):
         if flask_login.current_user.get_id() is None:
             return False
@@ -80,7 +82,7 @@ class Add_HDOJ_Problem_View(BaseView):
             print last_sub
             problem = {}
             problem['title'] = last_sub[0][0]
-            problem['original_oj_id'] = last_sub[0][1]
+            problem['original_oj_id'] = hdoj_id
             problem['time_limit'] = "1S"
             problem['memory_limit'] = "65535K"
             problem['description'] = last_sub[0][2]

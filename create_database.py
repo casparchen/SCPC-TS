@@ -1,7 +1,7 @@
 #coding=utf-8
 
 from application import db
-from application.models import User, News, Problem, Submission
+from application.models import User, News, Problem, Submission, Contest
 from datetime import datetime
 
 print 'Clearing old database...'
@@ -12,11 +12,11 @@ db.create_all()
 
 print 'adding user'
 users = []
-for i in range(50):
+for i in range(20):
     u = User(u'user' + str(i),u'password' + str(i),u'admin@mrchenyi.com' + str(i),u'20081816' + str(i), datetime.utcnow())
     users.append(u)
 
-for i in range(50):
+for i in range(20):
     db.session.add(users[i])
 chenyi = User('admin', '123456', 'qq@qq.com', 'scpc_oj_username', datetime.utcnow())
 chenyi.group = "admin|user|manage user|manage problem|manage contest|manage news"
@@ -37,10 +37,10 @@ for i in range(1):
     db.session.add(p)
 
 print "adding Contests"
-p = None
-for i in range(1):
-    p = Contest(u"contests", u"1000", datetime.utcnow(), datetime.utcnow()，"110 101 110",False, u"1sssss", u"description",)
-    db.session.add(p)
+p1 = None
+for i in range(11):
+    p1 = Contest(u"contests" + str(i), u"1000", datetime.utcnow(), datetime.utcnow(),"110 101 110",False, u"1sssss", u"description")
+    db.session.add(p1)
 
 print "adding submission"
 for i in range(20):

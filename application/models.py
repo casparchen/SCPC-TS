@@ -106,7 +106,6 @@ class Contest(db.Model):
     private=db.Column(db.Boolean,nullable=False)
     contestants=db.Column(db.Text)
     ranklist=db.Column(db.Text)
-    
     def __init__(self,title="",description="",start_time=datetime.utcnow(),end_time=datetime.utcnow(),problems="",private=False,contestants="",ranklist=""):
         self.title=title
         self.description=description

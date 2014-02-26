@@ -157,7 +157,11 @@
                                             <td>2013-05-21 19:05:00</td>
                                             <td>2013-05-21 19:05:00</td>
                                             <td>Ended</td>
+                                            {% if p.private %}
                                             <td>Private</td>
+                                            {% else %}
+                                            <td>Public</td>
+                                            {% endif %}
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -226,8 +230,8 @@
             SCPC();
               
             var options = {
-        		currentPage: 3,
-        		totalPages: 1000,
+        		currentPage: {{current_page}},
+        		totalPages: {{total_page}},
                 
         		shouldShowPage:function(type, page, current){
         			switch(type)
@@ -240,6 +244,7 @@
         			}
         		},
         		onPageChanged: function(e,oldPage,newPage){
+
         			//$('#paginator-content').text("Current page changed, old: "+oldPage+" new: "+newPage);
         		}
         	}

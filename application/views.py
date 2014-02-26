@@ -189,9 +189,13 @@ def contests(page=0):
 			d['private']=row.private
 			d['contestants']=row.contestants
 			d['ranklist']=row.ranklist
-		return "ok"
+			objects_list.append(d)
+#		return "ok"
 		return render_template("contests.html",
-		    contests=object_list,
+		    contests=objects_list,
+		    total_page = int(math.ceil(Problem.query.count()/10.0))+1,
+		    current_page = page + 1,
+            site_name = app.config['SCPC_TS_SITE_NAME']
 		)
 		
 	return redirect(url_for('index'))

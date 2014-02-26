@@ -174,7 +174,6 @@ def forum():
 @app.route('/contests/<int:page>/')
 def contests(page=0):
 	if type(page)==int:
-#		return "if"+str(page)
 		page=0 if page<1 else page-1
 		data=Contest.query.limit(10).offset(page*10).all()
 		objects_list=[]

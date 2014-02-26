@@ -76,6 +76,7 @@ class PKUOJ(SCPC_Judger):
             # Submit
             request = urllib2.Request(submit_url, postData, headers)  
             response = urllib2.urlopen(request)
+            #print response.read()
             return True
         except Exception, e:
             print "Warning: PKUOJ.submit()"
@@ -114,7 +115,7 @@ class PKUOJ(SCPC_Judger):
                 text  = response.read()
                 match = re.compile('<tr align=center><td>(.*?)<\/td><td>.*?<font.*?>(.*?)<\/font>.*?<td>(.*?)<\/td.*?td>(.*?)<\/td>', re.M | re.S)
                 last_sub = match.findall(text)
-                print last_sub
+                #print "               ", last_sub[0]
             except Exception, e:
                 print "Warning: PKUOJ.request_last_submission()"
                 print e
@@ -127,7 +128,7 @@ class PKUOJ(SCPC_Judger):
     def run(self):
         try:
             self.oj_last_submission_id = self.request_last_submission()[0][0]
-            print "[Task %s]: Last ID: %s" % (self.submission.id, self.oj_last_submission_id)
+            #print "[Task %s]: Last ID: %s" % (self.submission.id, self.oj_last_submission_id)
             if self.submit() == False:
                 raise Exception("Error: Submit failed.")
             while self.stillRuning:

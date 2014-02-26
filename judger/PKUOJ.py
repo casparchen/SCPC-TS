@@ -78,7 +78,7 @@ class PKUOJ(SCPC_Judger):
             response = urllib2.urlopen(request)
             return True
         except Exception, e:
-            print "Warning: HDOJ.submit()"
+            print "Warning: PKUOJ.submit()"
             print e
             return False
         
@@ -108,7 +108,7 @@ class PKUOJ(SCPC_Judger):
                 request = urllib2.Request(login_url, postData, headers)  
                 response = urllib2.urlopen(request) 
                 
-                status_url = "http://poj.org/status?user_id=" + self.hdoj_username
+                status_url = "http://poj.org/status?user_id=" + self.oj_username
                 request = urllib2.Request(status_url, None, headers)  
                 response = urllib2.urlopen(request)
                 text  = response.read()
@@ -116,7 +116,7 @@ class PKUOJ(SCPC_Judger):
                 last_sub = match.findall(text)
                 print last_sub
             except Exception, e:
-                print "Warning: HDOJ.request_last_submission()"
+                print "Warning: PKUOJ.request_last_submission()"
                 print e
             if last_sub == None or last_sub == []:
                 time.sleep(2)
@@ -126,20 +126,19 @@ class PKUOJ(SCPC_Judger):
         
     def run(self):
         try:
-            self.hdoj_last_submission_id = self.request_last_submission()[0][0]
-            return ""
-            #print "[Task %s]: Last ID: %s" % (self.submission.id, self.hdoj_last_submission_id)
+            self.oj_last_submission_id = self.request_last_submission()[0][0]
+            print "[Task %s]: Last ID: %s" % (self.submission.id, self.oj_last_submission_id)
             if self.submit() == False:
                 raise Exception("Error: Submit failed.")
             while self.stillRuning:
                 current_sub = self.request_last_submission()
-                if self.hdoj_last_submission_id == current_sub[0][0]:
+                if self.oj_last_submission_id == current_sub[0][0]:
                     time.sleep(2)
                     continue
                 if self.stillRuning == False: raise Exception("thread has already been killed.")
-                if current_sub[0][1] != 'Queuing' and current_sub[0][1] != 'Running' and current_sub[0][1] != 'Compiling':
+                if current_sub[0][1] != 'Compiling' and current_sub[0][1] != 'Running & Judging' and current_sub[0][1] != 'Waiting':
                     session = db.create_scoped_session()
-                    session.execute("UPDATE submission set result='%s', judger_status=-1, memory_used='%s', time_used='%s', original_oj_submit_id=%s WHERE id=%d" % (current_sub[0][1],current_sub[0][3],current_sub[0][2],current_sub[0][0],self.submission.id))
+                    session.execute("UPDATE submission set result='%s', judger_status=-1, memory_used='%s', time_used='%s', original_oj_submit_id=%s WHERE id=%d" % (current_sub[0][1],current_sub[0][2],current_sub[0][3],current_sub[0][0],self.submission.id))
                     session.flush()
                     session.commit()
                     self.done = True
@@ -150,12 +149,12 @@ class PKUOJ(SCPC_Judger):
                 if self.stillRuning == False: raise Exception("thread has already been killed.")
                 session.commit()
         except SQLAlchemyError, e:
-            print "Warning: HDOJ.run()"
+            print "Warning: PKUOJ.run()"
             print "rollback"
             db.session.rollback()
             print e
         except Exception, e:
-            print "Warning: HDOJ.run()"
+            print "Warning: PKUOJ.run()"
             print e
 
 

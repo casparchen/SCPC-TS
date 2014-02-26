@@ -48,6 +48,7 @@ class SCPC_Judger_Guard(object):
             time.sleep(3)
             if len(self.tasks) == self.MAX_JUDGE_TASK: continue
             submission = self.request_new_submission_by_databse()
+            print "==========",submission
             if submission is not None:
                 self.tasks.append(submission)
                 self.judge(submission)
@@ -78,17 +79,6 @@ class SCPC_Judger_Guard(object):
 
     def request_new_submission_by_databse(self):
         try:
-            """
-            A = False
-            B = False
-            for x in self.judgers:
-                if self.request_spare_judger(str(x)) != None:
-                    A = or_(A, Submission.original_oj==str(x))
-                    B = True
-            if B != True: return None
-            db.session.flush()
-            submission = Submission.query.filter(and_(Submission.judger_status==0, A)).first()
-            """
             OJs = ""
             for x in self.judgers:
                 if self.request_spare_judger(str(x)) != None:
@@ -123,14 +113,15 @@ class SCPC_Judger_Guard(object):
         if task in self.tasks:
             self.tasks.remove(task)
 
-guard = SCPC_Judger_Guard(2)
+guard = SCPC_Judger_Guard(3)
 
 guard.add_judger({"oj" : HDOJ, "account": [
     {"username" : "scpc1", "password" : "swustscpc"}, 
     {"username" : "scpc2", "password" : "swustscpc"}]})
 
 guard.add_judger({"oj" : PKUOJ, "account": [
-    {"username" : "scpc1", "password" : "swustscpc"}]})
+    {"username" : "scpc1", "password" : "swustscpc"},
+    {"username" : "scpc2", "password" : "swustscpc"}]})
         
 
 

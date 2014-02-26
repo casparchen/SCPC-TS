@@ -154,9 +154,15 @@
                                             <td>
                                                 <a href="/contest/{{p.id}}">{{p.title}}</a>
                                             </td>
-                                            <td>2013-05-21 19:05:00</td>
-                                            <td>2013-05-21 19:05:00</td>
-                                            <td>Ended</td>
+                                            <td>{{p.start_time}}</td>
+                                            <td>{{p.end_time}}</td>
+                                            {% if p.start_time>ctime %}
+                                            <td>Pending</td>
+                                            {% elif p.end_time<ctime %}
+                                             <td>Ended</td>
+                                            {% else %}
+                                             <td>Running</td>
+                                            {% endif %}
                                             {% if p.private %}
                                             <td>Private</td>
                                             {% else %}
@@ -244,7 +250,9 @@
         			}
         		},
         		onPageChanged: function(e,oldPage,newPage){
-
+					if({{current_page}} != newPage){
+                        window.location.href = '/contests/' + newPage;
+                    }
         			//$('#paginator-content').text("Current page changed, old: "+oldPage+" new: "+newPage);
         		}
         	}

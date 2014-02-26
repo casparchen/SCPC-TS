@@ -175,7 +175,7 @@ def forum():
 def contests(page=0):
 	if type(page)==int:
 		page=0 if page<1 else page-1
-		data=Contest.query.limit(10).offset(page*10).all()
+		data=Contest.query.order_by(db.desc(Contest.id)).limit(10).offset(page*10).all()
 		objects_list=[]
 		for row in data:
 			d=collections.OrderedDict()
@@ -194,6 +194,7 @@ def contests(page=0):
 		    contests=objects_list,
 		    total_page = int(math.ceil(Problem.query.count()/10.0))+1,
 		    current_page = page + 1,
+		    ctime=datetime.now(),
             site_name = app.config['SCPC_TS_SITE_NAME']
 		)
 		

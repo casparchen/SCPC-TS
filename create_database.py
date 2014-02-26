@@ -42,6 +42,7 @@ for i in range(11):
     p1 = Contest(u"contests" + str(i), u"1000", datetime.utcnow(), datetime.utcnow(),"110 101 110",False, u"1sssss", u"description")
     db.session.add(p1)
 
+
 print "adding submission"
 for i in range(20):
     s = Submission(users[5], p, datetime.utcnow(), 'g++', '#include<stdio.h>\nint main(){\nint a,b;\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\nprintf(\"%d\\n\",a+b);\n}\n}\n', 'pending', None, None, 0, p.original_oj,p.original_oj_id)

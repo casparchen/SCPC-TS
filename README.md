@@ -8,6 +8,7 @@ http://mrchenyi.com:5000/
   
 plugin				|   version	| 
 :----------------:	|	:-----------:	|	
+flask               |   0.10.1          |
 Flask-Login			|	0.2.9			|	
 Flask-SQLAlchemy	|	1.0				|	
 Flask-WTF			|	0.9.4			|	
@@ -32,7 +33,6 @@ pip install Flask-Login==0.2.9
 pip install Flask-SQLAlchemy==1.0
 pip install Flask-WTF==0.9.4
 pip install MySQL-python==1.2.5
-apt-get install libmysqlclient-dev
-apt-get install libmysqld-dev
+
 apt-get install python-mysqldb
 

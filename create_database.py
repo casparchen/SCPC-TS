@@ -38,8 +38,8 @@ for i in range(1):
 
 print "adding Contests"
 p = None
-for i in range(1):
-    p = Contest(u"contests", u"1000", datetime.utcnow(), datetime.utcnow()，"110 101 110",False, u"1sssss", u"description",)
+for i in range(20):
+    p = Contest(u"contests", u"1000", datetime.utcnow(), datetime.utcnow(),u"110 101 110",False, u"1sssss", u"description",)
     db.session.add(p)
 
 print "adding submission"

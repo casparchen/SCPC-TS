@@ -100,7 +100,7 @@ class Contest(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.Text,nullable=False)
     description=db.Column(db.Text)
-    end_time=db.Column(db.DateTime,nullable=False)
+    start_time=db.Column(db.DateTime,nullable=False)
     end_time=db.Column(db.DateTime,nullable=False)
     problems=db.Column(db.Text)
     private=db.Column(db.Boolean,nullable=False)

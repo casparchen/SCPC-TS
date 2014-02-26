@@ -3,6 +3,7 @@ import re,urllib,urllib2,cookielib,time
 from application import db
 from application.models import Submission
 from judger.HDOJ import HDOJ
+from judger.PKUOJ import PKUOJ
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import SQLAlchemyError
 import threading
@@ -88,8 +89,14 @@ class SCPC_Judger_Guard(object):
             db.session.flush()
             submission = Submission.query.filter(and_(Submission.judger_status==0, A)).first()
             """
+            OJs = ""
+            for x in self.judgers:
+                if self.request_spare_judger(str(x)) != None:
+                    if OJs != "": OJs = OJs + " or "
+                    OJs = OJs + ("original_oj='%s'" % str(x))
+            if OJs == "": return None
             session = db.create_scoped_session()
-            submission = session.execute("select * from submission where judger_status=0 and original_oj='HDOJ' limit 1").first()
+            submission = session.execute("select * from submission where judger_status=0 and (%s) limit 1"%OJs).first()
             if submission is not None:
                 session.execute("update submission set judger_status=%d where id=%d" % (time.time(), submission.id))
             session.flush()
@@ -118,7 +125,12 @@ class SCPC_Judger_Guard(object):
 
 guard = SCPC_Judger_Guard(2)
 
-guard.add_judger({"oj" : HDOJ, "account": [{"username" : "scpc1", "password" : "swustscpc"}, {"username" : "scpc2", "password" : "swustscpc"}]})
+guard.add_judger({"oj" : HDOJ, "account": [
+    {"username" : "scpc1", "password" : "swustscpc"}, 
+    {"username" : "scpc2", "password" : "swustscpc"}]})
+
+guard.add_judger({"oj" : PKUOJ, "account": [
+    {"username" : "scpc1", "password" : "swustscpc"}]})
         
 
 

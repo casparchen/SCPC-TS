@@ -1,32 +1,35 @@
-from application import admin, models, db
-from flask_admin.contrib.sqla import ModelView
-from flask_admin import BaseView, expose
-import flask_login
-from flask import request
-import urllib2,re
-import json,sys
-from flask import g, render_template, redirect, url_for, request
-from application import app
-reload(sys)
-sys.setdefaultencoding('gb2312')
-last_sub = []
-problem_url = "http://acm.hdu.edu.cn/showproblem.php?pid=" + str(2902)
-response = urllib2.urlopen(problem_url)
+#coding=utf-8
+from application import db
+from application.models import Submission
+from judger.judger_base import SCPC_Judger
+from sqlalchemy.exc import SQLAlchemyError
+import judger
+import HTMLParser  
+import urlparse  
+import urllib  
+import urllib2  
+import cookielib  
+import string  
+import re 
+import time
+import sys
+
+login_url = "http://poj.org/login";
+#cookie处理器
+cookieJar = cookielib.LWPCookieJar()  
+cookie_support = urllib2.HTTPCookieProcessor(cookieJar)  
+opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)  
+urllib2.install_opener(opener)  
+ 
+
+#header  
+headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:14.0) Gecko/20100101 Firefox/14.0.1', 'Referer' : '******'}  
+
+
+status_url = "http://poj.org/status?user_id=" + '20081816'
+request = urllib2.Request(status_url, None, headers)  
+response = urllib2.urlopen(request)
 text  = response.read()
-match = re.compile('<h1 style=\'color:#1A5CC8\'>(.*?)<\/h1>.*?Time Limit.*?\/(\d*).*?Problem Description.*?<div class=panel_content>(.*?)<\/div>.*?Input.*?<div class=panel_content>(.*?)<\/div>.*?Output.*?<div class=panel_content>(.*?)<\/div>.*?Sample Input.*?<div class=panel_content><pre>.*?>(.*?)<\/.*?<\/pre>.*?Sample Output.*?<pre>.*?>(.*?)<\/?div.*?<\/pre>', re.M | re.S)
+print text
+match = re.compile('<input type=submit.*?<\/form>.*?height=22px>(.*?)<\/td><td>.*?<font.*?>(.*?)<\/font>.*?showproblem.*?<td>(.*?)<\/td><td>(.*?)<\/td>', re.M | re.S)
 last_sub = match.findall(text)
-print last_sub
-problem = {}
-problem['title'] = last_sub[0][0]
-problem['original_oj_id'] = last_sub[0][1]
-problem['time_limit'] = "1S"
-problem['memory_limit'] = "65535K"
-problem['description'] = last_sub[0][2]
-problem['input'] = last_sub[0][3]
-problem['output'] = last_sub[0][4]
-problem['sample_input'] = last_sub[0][5]
-problem['sample_output'] = last_sub[0][6]
-problem['hint'] = ""
-problem['sample_input'] = problem['sample_input'].replace('\r\n', '<br/>')
-problem['sample_output'] = problem['sample_output'].replace('\r\n', '<br/>')
-print problem

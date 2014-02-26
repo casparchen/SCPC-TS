@@ -2,7 +2,7 @@
 
 # database
 SQLALCHEMY_DATABASE_URI = 'mysql://root:scpc@mrchenyi.com/SCPC_TS?charset=utf8'
-SQLALCHEMY_ECHO = True
+#SQLALCHEMY_ECHO = True
 #SQLALCHEMY_DATABASE_URI = 'mysql://scpc:123456@db4free.net/scpc_ts?charset=utf8'
 
 # site name

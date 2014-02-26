@@ -13,6 +13,9 @@ import string
 import re 
 import time
 import sys
+from datetime import datetime
+
+datetime.utcnow(8)
 
 login_url = "http://poj.org/login";
 #cookie处理器

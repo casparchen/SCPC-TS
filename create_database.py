@@ -36,10 +36,10 @@ for i in range(1):
     p = Problem(None, None, u"PKUOJ", u"1000", u"A + B Problem " + str(i), u"128k", u"1s", u"description", u"input", u"output", u"sample_input", u"sample_output", u"hint")
     db.session.add(p)
 
-print "adding problems"
+print "adding Contests"
 p = None
 for i in range(1):
-    p = Problem(u"contests", u"1000", datetime.utcnow(), datetime.utcnow(),False, u"1sssss", u"description",)
+    p = Contest(u"contests", u"1000", datetime.utcnow(), datetime.utcnow()，"110 101 110",False, u"1sssss", u"description",)
     db.session.add(p)
 
 print "adding submission"

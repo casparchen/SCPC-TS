@@ -148,16 +148,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+										{% for p in contests %}
                                         <tr>
-                                            <td>1001</td>
+                                            <td>{{p.id}}</td>
                                             <td>
-                                                <a href="contest.html">西南科技大学第八届程序设计竞赛</a>
+                                                <a href="/contest/{{p.id}}">{{p.title}}</a>
                                             </td>
                                             <td>2013-05-21 19:05:00</td>
                                             <td>2013-05-21 19:05:00</td>
                                             <td>Ended</td>
                                             <td>Private</td>
                                         </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                                 <ul id="paginator-problem-list">

@@ -171,9 +171,30 @@ def forum():
     return render_template('forum.html', site_name = app.config['SCPC_TS_SITE_NAME'])
 
 @app.route('/contests/')
-def contests():
-    return road()
-
+@app.route('/contests/<int:page>/')
+def contests(page=0):
+	if type(page)==int:
+#		return "if"+str(page)
+		page=0 if page<1 else page-1
+		data=Contest.query.limit(10).offset(page*10).all()
+		objects_list=[]
+		for row in data:
+			d=collections.OrderedDict()
+			d['id']=row.id
+			d['title']=row.title
+			d['description']=row.description
+			d['start_time']=row.start_time
+			d['end_time']=row.end_time
+			d['problems']=row.problems
+			d['private']=row.private
+			d['contestants']=row.contestants
+			d['ranklist']=row.ranklist
+		return "ok"
+		return render_template("contests.html",
+		    contests=object_list,
+		)
+		
+	return redirect(url_for('index'))
 
 @app.route('/')
 @app.route('/index')

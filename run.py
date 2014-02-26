@@ -8,7 +8,7 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 
-#app.run(host='0.0.0.0', debug=True)
+#app.run(debug=True)
 
 
 http_server = WSGIServer(('', 5000), app)

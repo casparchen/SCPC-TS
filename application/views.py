@@ -129,12 +129,12 @@ def problem(id):
             problem = p
             )
 
-@cache.cached(timeout=5)
+@cache.cached(timeout=3)
 @app.route('/submissions/')
 def submissions_no_page():
     return submissions(0)
 
-@cache.cached(timeout=5)
+@cache.cached(timeout=3)
 @app.route('/submissions/<int:page>/')
 def submissions(page):
     if type(page) == int:

@@ -19,32 +19,28 @@ for i in range(50):
 for i in range(50):
     db.session.add(users[i])
 chenyi = User('admin', '123456', 'qq@qq.com', 'scpc_oj_username', datetime.utcnow())
-chenyi.group = "admin|user"
+chenyi.group = "admin|user|manage user|manage problem|manage contest|manage news"
 db.session.add(chenyi)
 
 print 'adding news'
 news = []
 for i in range(10):
     n = News(datetime.utcnow(), u"新闻标题新闻标题新闻 " + str(i), u"新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!")
-    news.append(n)
+    db.session.add(n)
 
-for i in range(10):
-    db.session.add(news[i])
 
 
 print "adding problems"
-problems = []
-for i in range(12):
-    p = Problem(None, None, u"HDOJ", u"1000", u"A + B Problem " + str(i), u"128k", u"1s", u"description", u"input", u"output", u"sample_input", u"sample_output", u"hint")
-    problems.append(p)
+p = None
+for i in range(1):
+    p = Problem(None, None, u"PKUOJ", u"1000", u"A + B Problem " + str(i), u"128k", u"1s", u"description", u"input", u"output", u"sample_input", u"sample_output", u"hint")
+    db.session.add(p)
 
-for i in range(12):
-    db.session.add(problems[i])
+    
 
 print "adding submission"
-submissions = []
 for i in range(20):
-    s = Submission(users[5], problems[0], datetime.utcnow(), 'g++', '#include<stdio.h>\nint main(){\nint a,b;\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\nprintf(\"%d\\n\",a+b);\n}\n}\n', 'pending', None, None, 0, problems[0].original_oj,problems[0].original_oj_id)
+    s = Submission(users[5], p, datetime.utcnow(), 'g++', '#include<stdio.h>\nint main(){\nint a,b;\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\nprintf(\"%d\\n\",a+b);\n}\n}\n', 'pending', None, None, 0, p.original_oj,p.original_oj_id)
     db.session.add(s)
 
 db.session.commit()

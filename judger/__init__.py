@@ -48,7 +48,7 @@ class SCPC_Judger_Guard(object):
             time.sleep(3)
             if len(self.tasks) == self.MAX_JUDGE_TASK: continue
             submission = self.request_new_submission_by_databse()
-            if submission is not None: print "==========",submission.id
+            if submission is not None: print "[Main]: starting task:", submission.id
             if submission is not None:
                 self.tasks.append(submission)
                 self.judge(submission)
@@ -61,7 +61,7 @@ class SCPC_Judger_Guard(object):
             #print "[Main] select accout: ", spare_account['username']
             j = self.judgers[task.original_oj]['oj'](spare_account)
             
-            dm = threading.Thread(target=daemon,args=(j.judge(task), 30, spare_account))
+            dm = threading.Thread(target=daemon,args=(j.judge(task), 33, spare_account))
             #print "[Task #%s]: start daemon" % task.id
             dm.start()
         except Exception, e:

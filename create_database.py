@@ -1,7 +1,7 @@
 #coding=utf-8
 
 from application import db
-from application.models import User, News, Problem, Submission, Contest
+from application.models import User, News, Problem, Submission, Contest, Forum
 from datetime import datetime
 
 print 'Clearing old database...'
@@ -13,19 +13,19 @@ db.create_all()
 print 'adding user'
 users = []
 for i in range(20):
-    u = User(u'user' + str(i),u'password' + str(i),u'admin@mrchenyi.com' + str(i),u'20081816' + str(i), datetime.utcnow())
+    u = User(u'user' + str(i),u'password' + str(i),u'admin@mrchenyi.com' + str(i),u'20081816' + str(i), datetime.now())
     users.append(u)
 
 for i in range(20):
     db.session.add(users[i])
-chenyi = User('admin', '123456', 'qq@qq.com', 'scpc_oj_username', datetime.utcnow())
+chenyi = User('admin', '123456', 'qq@qq.com', 'scpc_oj_username', datetime.now())
 chenyi.group = "admin|user|manage user|manage problem|manage contest|manage news"
 db.session.add(chenyi)
 
 print 'adding news'
 news = []
 for i in range(10):
-    n = News(datetime.utcnow(), u"新闻标题新闻标题新闻 " + str(i), u"新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!")
+    n = News(datetime.now(), u"新闻标题新闻标题新闻 " + str(i), u"新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!新闻内容!")
     db.session.add(n)
 
 
@@ -39,15 +39,25 @@ for i in range(1):
 print "adding Contests"
 p1 = None
 for i in range(11):
+<<<<<<< HEAD
     p1 = Contest(u"contests" + str(i), u"1000", datetime.utcnow(), datetime.utcnow(),"110|101|110",False, u"1sssss", u"description")
+=======
+    p1 = Contest(u"contests" + str(i), u"1000", datetime.now(), datetime.now(),"110 101 110",False, u"1sssss", u"description")
+>>>>>>> 31af0796906ced2ae09d23b3a31f4f80d5eb64f2
     db.session.add(p1)
 
 
 print "adding submission"
-for i in range(20):
-    s = Submission(users[5], p, datetime.utcnow(), 'g++', '#include<stdio.h>\nint main(){\nint a,b;\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\nprintf(\"%d\\n\",a+b);\n}\n}\n', 'pending', None, None, 0, p.original_oj,p.original_oj_id)
+for i in range(5):
+    s = Submission(users[5], p, datetime.now(), 'g++', '#include<stdio.h>\nint main(){\nint a,b;\nwhile(scanf(\"%d%d\",&a,&b)!=EOF){\nprintf(\"%d\\n\",a+b);\n}\n}\n', 'pending', None, None, 0, p.original_oj,p.original_oj_id)
     db.session.add(s)
 
+print "adding forum.posts"
+for i in range(20):
+    po = Forum("title", "content", datetime.now(), 0, chenyi, None)
+    db.session.add(po)
+
+print "commiting..."
 db.session.commit()
 
 

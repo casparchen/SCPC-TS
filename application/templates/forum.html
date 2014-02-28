@@ -127,10 +127,36 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1>Coming Soon</h1>
+                        <h1>Forum</h1>
                     </div>
                 </div>
-                <hr class="short" />
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class='table'>
+                            <tbody>
+                                {% for p in posts %}
+                                <tr style="border-top: 1px solid  #DDD;">
+                                    <td width="50px">
+                                        <img src="https://cdn.v2ex.com/avatar/d8e4/2af9/54023_normal.png?m=1389450696" class="avatar" border="0" align="default">
+                                    </td>
+                                    <td>
+                                        <p style="font-size: 18px;">{{p.title}}</p>
+                                        <span style="background-color:#f5f5f5;color:#999;padding: 4px 4px 4px 4px;">Forum</span>
+                                        <span style="color: #DDD;">•</span>
+                                        <strong>{{p.user}}</strong>
+                                        <span style="color: #939191;">• {{p.last_update_time}}{%if p.last_reply != None %} • 最后回复来自{% endif %}</span>
+                                        {%if p.last_reply %}
+                                        <strong>{{p.last_reply}}</strong>
+                                        {% endif %}
+                                    </td>
+                                </tr>    
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <ul id="paginator-problem-list">
+                        </ul>
+                    </div>
+                </div>
             </div>
         </section>
         <!-- End: Content -->
@@ -189,8 +215,8 @@
             SCPC();
               
             var options = {
-        		currentPage: 3,
-        		totalPages: 1000,
+        		currentPage: {{current_page}},
+                totalPages: {{total_page}},
                 
         		shouldShowPage:function(type, page, current){
         			switch(type)
@@ -203,7 +229,9 @@
         			}
         		},
         		onPageChanged: function(e,oldPage,newPage){
-        			//$('#paginator-content').text("Current page changed, old: "+oldPage+" new: "+newPage);
+                    if({{current_page}} != newPage){
+                        window.location.href = '/forum/' + newPage;
+                    }
         		}
         	}
         	// init paginator

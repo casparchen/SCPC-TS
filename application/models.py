@@ -149,6 +149,30 @@ class Submission(db.Model):
         self.original_oj = original_oj
         self.original_oj_id = original_oj_id
 
+class Forum(db.Model):
+    """docstring for Forum"""
+    id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.Text)
+    content = db.Column(db.Text, nullable = False)
+    publish_time = db.Column(db.DateTime,nullable=False)
+    father_node = db.Column(db.Integer, nullable = False, default = 0)
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('posts', lazy='dynamic'))
+    problem_id = db.Column(db.Integer,db.ForeignKey('problem.id'))
+    problem = db.relationship('Problem', backref=db.backref('posts', lazy='dynamic'), lazy='select')
+    last_reply = db.Column(db.Text, default=None)
+    last_update_time = db.Column(db.DateTime,nullable=False)
+
+
+    def __init__(self, title, content, publish_time, father_node, user, problem):
+        self.title = title
+        self.content = content
+        self.publish_time = publish_time
+        self.father_node = father_node
+        self.user = user
+        self.problem = problem
+        self.last_update_time = publish_time
+        
 
 
 

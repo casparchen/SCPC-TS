@@ -2,7 +2,7 @@
 from flask import g, render_template, redirect, url_for, request
 from application import app,lm, cache, db
 from application.forms import form_user_login
-from application.models import User, News, Problem, Contest, Submission
+from application.models import User, News, Problem, Contest, Submission, Forum
 from flask_login import login_user, logout_user, current_user, login_required
 import json
 import collections
@@ -84,13 +84,13 @@ def submit():
     return json.dumps({"result": "Only support POST request."})
 
 
-@cache.cached(timeout=5)
 @app.route('/problems/')
+@cache.cached(timeout=5)
 def problems_no_page():
     return problems(0)
 
-@cache.cached(timeout=5)
 @app.route('/problems/<int:page>/')
+@cache.cached(timeout=5)
 def problems(page):
     if type(page) == int:
         page = 0 if page<1 else page-1
@@ -129,14 +129,16 @@ def problem(id):
             problem = p
             )
 
-@cache.cached(timeout=3)
-@app.route('/submissions/')
-def submissions_no_page():
-    return submissions(0)
 
+@app.route('/submissions/', defaults={'page': 1})
+@app.route('/submissions/<int:page>')
 @cache.cached(timeout=3)
-@app.route('/submissions/<int:page>/')
-def submissions(page):
+def submissions_1(page):
+    return submissions(page, None, None, None)
+
+@app.route('/submissions/<int:page>:<user>:<int:problem>:<result>')
+@cache.cached(timeout=3)
+def submissions(page, user, problem, result):
     if type(page) == int:
         page = 0 if page<1 else page-1
         data = Submission.query.order_by(db.desc(Submission.id)).offset(page*10).limit(10).all()
@@ -159,19 +161,58 @@ def submissions(page):
             current_page = page + 1,
             site_name = app.config['SCPC_TS_SITE_NAME']
             )
-
     return redirect(url_for('index'))
 
 @app.route('/road/')
 def road():
     return render_template('road.html', site_name = app.config['SCPC_TS_SITE_NAME'])
 
-@app.route('/forum/')
-def forum():
-    return render_template('forum.html', site_name = app.config['SCPC_TS_SITE_NAME'])
+@app.route('/forum/', defaults={'page': 1})
+@app.route('/forum/<int:page>')
+@cache.cached(timeout=3)
+def forum(page):
+    if type(page) == int:
+        page = 0 if page<1 else page-1
+        data = Forum.query.filter(Forum.father_node==0,Forum.problem==None).order_by(db.desc(Forum.id)).offset(page*10).limit(10).all()
+        objects_list = []
+        for row in data:
+            d = collections.OrderedDict()
+            d['id'] = row.id
+            d['title'] = row.title
+            d['content'] = row.content
+            d['last_update_time'] = row.last_update_time
+            d['user'] = row.user.username
+            d['last_reply'] = row.last_reply
+            objects_list.append(d)
+        return render_template('forum.html', 
+            posts = objects_list,
+            total_page = int(math.ceil(Forum.query.filter(Forum.father_node==0,Forum.problem==None).count()/10.0)),
+            current_page = page + 1,
+            site_name = app.config['SCPC_TS_SITE_NAME']
+            )
+    return redirect(url_for('index'))
+
+@app.route('/forum/post/<int:id>/', defaults={'page': 1})
+@app.route('/forum/post/<int:id>/<int:page>')
+@cache.cached(timeout=5)
+def post(id, page):
+    if type(page) == int:
+        page = 0 if page<1 else page-1
+        if type(id) == int:
+            id = 1 if id < 1 else id
+            p = Forum.query.get(id)
+            replys = Forum.query.filter(Forum.father_node == p.id).offset(page*10).limit(10).all()
+            return render_template('post.html',
+                site_name = app.config['SCPC_TS_SITE_NAME'],
+                post = p,
+                replys = replys,
+                total_page = int(math.ceil(Forum.query.filter(Forum.father_node == p.id).count()/10.0)),
+                current_page = page + 1
+                )
 
 @app.route('/contests/')
 @app.route('/contests/<int:page>/')
+@cache.cached(timeout=3)
 def contests(page=0):
 	if type(page)==int:
 		page=0 if page<1 else page-1

@@ -24,7 +24,7 @@ def before_request():
 def login(action):
     if action == "login_status":
         if g.user is not None and g.user.is_authenticated():
-            return json.dumps({"login_status" : True, "username" : g.user.username})
+            return json.dumps({"login_status" : True, "username" : g.user.username, "email_hash" : g.user.email.split('|')[1]})
         else:
             return json.dumps({"login_status" : False})
     elif action == "login_form":
@@ -182,6 +182,7 @@ def forum(page):
             d['content'] = row.content
             d['last_update_time'] = row.last_update_time
             d['user'] = row.user.username
+            d['user_email_hash'] = row.user.email.split('|')[1]
             d['last_reply'] = row.last_reply
             objects_list.append(d)
         total_page = int(math.ceil(Forum.query.filter(Forum.father_node==0,Forum.problem==None).count()/10.0))
@@ -211,7 +212,8 @@ def post(id, page):
                 post = p,
                 replys = replys,
                 total_page = total_page,
-                current_page = page + 1
+                current_page = page + 1,
+                email_hash = p.user.email.split("|")[1]
                 )
 
 

@@ -135,21 +135,21 @@
                     <div class="col-md-12">
                         <div class="panel">
                             <div class="panel-body">
-                                <table class="table table-hover table-striped1 text-center">
+                                <table class="table table-hover table-striped1 text-center" id="submission_table">
                                     <thead>
                                         <tr>
-                                            <td width="8%">ID</td>
-                                            <td width="15%">Problem</td>
+                                            <td width="6%">ID</td>
+                                            <td width="17%">Problem</td>
                                             <td width="12%">User</td>
-                                            <td width="10%">Result</td>
+                                            <td width="15%">Result</td>
                                             <td width="10%">Memory</td>
-                                            <td width="10%">Time</td>
-                                            <td width="8%">Compiler</td>
+                                            <td width="9%">Time</td>
+                                            <td width="7%">Compiler</td>
                                             <td width="7%">Length</td>
-                                            <td width="20%">Submit Time</td>
+                                            <td width="17%">Submit Time</td>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="submission_table_body">
                                         {% for p in submissions %}
                                         <tr>
                                             <td>{{p.id}}</td>
@@ -252,6 +252,23 @@
             }
             // init paginator
             $('#paginator-problem-list').bootstrapPaginator(options);
+
+            // coloring
+            $("#submission_table_body").children().each(function(){
+                var result = $($(this).children()[3]).text();
+                if( $.inArray(result, Array("Accepted","Accept"))!=-1 ){
+                    $($(this).children()[3]).css('color', 'red');
+                }
+                else if( $.inArray(result, Array("Presentation Error"))!=-1 ){
+                    $($(this).children()[3]).css('color', 'rgb(255, 165, 0)');
+                }
+                else if( $.inArray(result, Array("Compilation Error", "Compile Error"))!=-1 ){
+                    $($(this).children()[3]).css('color', 'rgb(102, 51, 255)');
+                }
+                else{
+                    $($(this).children()[3]).css('color', 'rgb(0, 128, 0)');
+                }
+            });
         
         
         });

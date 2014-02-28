@@ -22,6 +22,7 @@
     <link rel="stylesheet" type="text/css" href="/static/vendor/plugins/calendar/fullcalendar.css" />
     <link rel="stylesheet" type="text/css" href="/static/vendor/plugins/datatables/css/datatables.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/animate.css" />
+    <link rel="stylesheet" type="text/css" href="/static/vendor/editors/summernote/summernote.css" />
 
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/static/css/theme.css" />
@@ -126,40 +127,63 @@
         <section id="content">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-12">
-                      <div class="panel">
-                        <div class="panel-heading">
-                          <div class="panel-title"> {{post.title}} </div>
+                    <div class="col-md-12" style="padding-left:20px;">
+                        <div class="panel">
+                            <div class="panel-body">
+                                <div>
+                                    <table width="100%;">
+                                        <tr>
+                                            <td>
+                                                <h1>{{post.title}}</h1>
+                                                <strong>{{post.user.username}}</strong>
+                                                <span style="color: #939191;">• {{post.last_update_time}}</span>
+                                            </td>
+                                            <td width="50px;" class="pull-right">
+                                                <img src="https://cdn.v2ex.com/avatar/d8e4/2af9/54023_normal.png?m=1389450696" class="avatar" border="0" align="default">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <hr class="short" />
+                                <div style="font-size:16px;">{{post.content|safe}}</div>
+                            </div>
+                            <div class="panel-footer">
+                                <button type="button" id="btn-create" class="btn btn-default btn-gradient">Reply</button>
+                            </div>
                         </div>
-                        <div class="panel-body">
-                          {{post.content|safe}}
+                    </div>
+
+                    <div class="col-md-12" style="padding-left:10px;">
+                        <div class="col-md-12">
+                            <table class='table'>
+                                <tbody>
+                                    {% for p in replys %}
+                                    <tr style="border-top: 1px solid  #DDD;">
+                                        <td width="50px">
+                                            <img src="https://cdn.v2ex.com/avatar/d8e4/2af9/54023_normal.png?m=1389450696" class="avatar" border="0" align="default">
+                                        </td>
+                                        <td>
+                                            <p style="font-size: 15px;">{{p.user.username}}&nbsp;&nbsp;
+                                                <span style="color: #939191;font-size:12px;">{{p.last_update_time}}</span>
+                                            </p>
+                                            <div style='color:black;font-size:14px;'>{{p.content}}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <ul id="paginator-problem-list"></ul>
+                            <div class="clearfix"></div>
                         </div>
-                      </div>
+                        <div class="clearfix"></div>
                     </div>
-                    <div class="col-md-12">
-                        <table class='table'>
-                            <tbody>
-                                {% for p in replys %}
-                                <tr style="border-top: 1px solid  #DDD;">
-                                    <td width="50px">
-                                        <img src="https://cdn.v2ex.com/avatar/d8e4/2af9/54023_normal.png?m=1389450696" class="avatar" border="0" align="default">
-                                    </td>
-                                    <td>
-                                        <p style="font-size: 15px;">{{p.user.username}}&nbsp;&nbsp;<span style="color: #939191;font-size:12px;">{{p.last_update_time}}</span></p>
-                                        <div style='color:black;font-size:14px;'>{{p.content}}<div>
-                                    </td>
-                                </tr>    
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <ul id="paginator-problem-list">
-                        </ul>
-                    </div>
+
                 </div>
-                <hr class="short" />
             </div>
         </section>
         <!-- End: Content -->
+        <div class="clearfix"></div>
 
     </div>
     <!-- End: Main -->
@@ -191,6 +215,7 @@
     <script type="text/javascript" src="/static/vendor/plugins/sparkline/jquery.sparkline.min.js"></script>
     <script type="text/javascript" src="/static/vendor/plugins/datatables/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="/static/vendor/plugins/calendar/fullcalendar.min.js"></script>
+    <script type="text/javascript" src="/static/vendor/editors/summernote/summernote.js"></script>
 
 
     <!-- Plugins -->
@@ -209,37 +234,106 @@
     <script type="text/javascript" src="/static/js/custom.js"></script>
     <script type="text/javascript">
         jQuery(document).ready(function() {
-              
-            // Init Theme Core    
-            Core.init();
-            SCPC();
-              
-            var options = {
-                currentPage: {{current_page}},
-                totalPages: {{total_page}},
-                
-                shouldShowPage:function(type, page, current){
-                    switch(type)
-                    {
-                        case "first":
-                        case "last":
-                            return true;
-                        default:
-                            return true;
-                    }
-                },
-                onPageChanged: function(e,oldPage,newPage){
-                    if({{current_page}} != newPage){
-                        window.location.href = '/problems/' + newPage;
+                  
+                // Init Theme Core    
+                Core.init();
+                SCPC();
+                  
+                var options = {
+                    currentPage: {{current_page}},
+                    totalPages: {{total_page}},
+                    
+                    shouldShowPage:function(type, page, current){
+                        switch(type)
+                        {
+                            case "first":
+                            case "last":
+                                return true;
+                            default:
+                                return true;
+                        }
+                    },
+                    onPageChanged: function(e,oldPage,newPage){
+                        if({{current_page}} != newPage){
+                            window.location.href = '/forum/post/{{post.id}}/' + newPage;
+                        }
                     }
                 }
-            }
-            // init paginator
-            $('#paginator-problem-list').bootstrapPaginator(options);
-        
-        
-        });
+                // init paginator
+                $('#paginator-problem-list').bootstrapPaginator(options);
+    
+                $('#btn-create').click(function(){
+                    $.getJSON("/user/login_status", function(data){
+                        if(data.login_status == false){
+                            alert('Please login first.');
+                        }else{
+                            $('#wnd-reply').modal();
+                            $('.summernote').summernote({
+                               height: 255,   //set editable area's height
+                               focus: false  //set focus editable area after Initialize summernote
+                             });
+    
+                            var current_height = $(window).height()*3/5;
+                            var current_width = $(window).width()*3/5;
+                            $('#post-to-submit').height(current_height);
+                            $('#post-to-submit').width(current_width);
+                            $('.modal-dialog').width(current_width+40)
+                            $('#post-to-submit').css("minHeight", current_height);
+                            $('#post-to-submit').css("maxHeight", current_height);
+                            $('#post-to-submit').css("maxWidth", current_width);
+                            $('#post-to-submit').css("minWidth", current_width);
+                        }
+                    });
+                });
+    
+                $('#btn-reply-confirm').click(function(){
+                    $('#btn-reply-confirm').attr('disabled',"true")
+                    $.ajax({
+                      url: '/forum/submit',
+                      method: 'POST',
+                      data: {
+                        content:$('#editor-post').code(),
+                        title:$('#editor-title').val(),
+                        father_node:{{post.id}}
+                      },
+                      success: function(data){
+                        data = $.parseJSON(data);
+                        if(data.result == "ok"){
+                            window.location.href = window.location.href;
+                        }else{
+                            alert('Submit failed. Responding message: [' + data.result + "]");
+                            $('#btn-reply-confirm').removeAttr("disabled"); 
+                        }
+                      },
+                      type: 'json'
+                    });
+                });
+            
+            
+            });
     </script>
+
+    <div class="modal fade" id="wnd-reply" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="news_window_content">
+                        <div id="tab-reply" class="tab-pane">
+                            <div class="row">
+                                <div class='col-md-12' style="padding-top:10px;">
+                                    <div class="summernote" style="height: 400px;" id="editor-post"></div>
+                                </div>
+
+                                <div class='col-md-3'>
+                                    <button type="button" id="btn-reply-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 

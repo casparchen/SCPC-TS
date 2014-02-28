@@ -184,9 +184,11 @@ def forum(page):
             d['user'] = row.user.username
             d['last_reply'] = row.last_reply
             objects_list.append(d)
+        total_page = int(math.ceil(Forum.query.filter(Forum.father_node==0,Forum.problem==None).count()/10.0))
+        if total_page == 0: total_page = 1
         return render_template('forum.html', 
             posts = objects_list,
-            total_page = int(math.ceil(Forum.query.filter(Forum.father_node==0,Forum.problem==None).count()/10.0)),
+            total_page = total_page,
             current_page = page + 1,
             site_name = app.config['SCPC_TS_SITE_NAME']
             )
@@ -202,13 +204,17 @@ def post(id, page):
             id = 1 if id < 1 else id
             p = Forum.query.get(id)
             replys = Forum.query.filter(Forum.father_node == p.id).offset(page*10).limit(10).all()
+            total_page = int(math.ceil(Forum.query.filter(Forum.father_node == p.id).count()/10.0))
+            if total_page == 0: total_page = 1
             return render_template('post.html',
                 site_name = app.config['SCPC_TS_SITE_NAME'],
                 post = p,
                 replys = replys,
-                total_page = int(math.ceil(Forum.query.filter(Forum.father_node == p.id).count()/10.0)),
+                total_page = total_page,
                 current_page = page + 1
                 )
+
+
 @app.route('/forum/submit', methods=['POST'])
 @login_required
 def forum_submit():
@@ -216,13 +222,19 @@ def forum_submit():
         try:
             if len(request.form['content']) < 5:
                 raise Exception("Content is too short. 5+ required.")
-            if len(request.form['title']) < 5:
-                raise Exception("Title is too short. 5+ required.")
-            father_node = None
-            if request.form['father_node']: father_node = request.form['father_node']
+            father_node = int(request.form['father_node'])
+            title = None
+            if father_node == 0:
+                title = request.form['title']
+                if len(title) < 5: raise Exception("Title is too short. 5+ required.")
             user = g.user
-            pst = Forum(request.form['title'], request.form['content'], datetime.now(), father_node, user, None)
+            time_now = datetime.now()
+            pst = Forum(title, request.form['content'], time_now, father_node, user, None)
             db.session.add(pst)
+            if father_node != 0:
+                father = Forum.query.get(father_node)
+                father.last_update_time = time_now
+                father.last_reply = user.username
             db.session.commit()
             return json.dumps({"result": "ok"})
         except Exception, e:

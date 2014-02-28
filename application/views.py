@@ -24,7 +24,7 @@ def before_request():
 def login(action):
     if action == "login_status":
         if g.user is not None and g.user.is_authenticated():
-            return json.dumps({"login_status" : True, "username" : g.user.username})
+            return json.dumps({"login_status" : True, "username" : g.user.username, "email_hash" : g.user.email.split('|')[1]})
         else:
             return json.dumps({"login_status" : False})
     elif action == "login_form":
@@ -182,11 +182,14 @@ def forum(page):
             d['content'] = row.content
             d['last_update_time'] = row.last_update_time
             d['user'] = row.user.username
+            d['user_email_hash'] = row.user.email.split('|')[1]
             d['last_reply'] = row.last_reply
             objects_list.append(d)
+        total_page = int(math.ceil(Forum.query.filter(Forum.father_node==0,Forum.problem==None).count()/10.0))
+        if total_page == 0: total_page = 1
         return render_template('forum.html', 
             posts = objects_list,
-            total_page = int(math.ceil(Forum.query.filter(Forum.father_node==0,Forum.problem==None).count()/10.0)),
+            total_page = total_page,
             current_page = page + 1,
             site_name = app.config['SCPC_TS_SITE_NAME']
             )
@@ -202,13 +205,45 @@ def post(id, page):
             id = 1 if id < 1 else id
             p = Forum.query.get(id)
             replys = Forum.query.filter(Forum.father_node == p.id).offset(page*10).limit(10).all()
+            total_page = int(math.ceil(Forum.query.filter(Forum.father_node == p.id).count()/10.0))
+            if total_page == 0: total_page = 1
             return render_template('post.html',
                 site_name = app.config['SCPC_TS_SITE_NAME'],
                 post = p,
                 replys = replys,
-                total_page = int(math.ceil(Forum.query.filter(Forum.father_node == p.id).count()/10.0)),
-                current_page = page + 1
+                total_page = total_page,
+                current_page = page + 1,
+                email_hash = p.user.email.split("|")[1]
                 )
+
+
+@app.route('/forum/submit', methods=['POST'])
+@login_required
+def forum_submit():
+    if request.method == 'POST':
+        try:
+            if len(request.form['content']) < 5:
+                raise Exception("Content is too short. 5+ required.")
+            father_node = int(request.form['father_node'])
+            title = None
+            if father_node == 0:
+                title = request.form['title']
+                if len(title) < 5: raise Exception("Title is too short. 5+ required.")
+            user = g.user
+            time_now = datetime.now()
+            pst = Forum(title, request.form['content'], time_now, father_node, user, None)
+            db.session.add(pst)
+            if father_node != 0:
+                father = Forum.query.get(father_node)
+                father.last_update_time = time_now
+                father.last_reply = user.username
+            db.session.commit()
+            return json.dumps({"result": "ok"})
+        except Exception, e:
+            return json.dumps({"result": str(e)})
+    return json.dumps({"result": "Only support POST request."})
+
+
 
 @app.route('/contests/')
 @app.route('/contests/<int:page>/')

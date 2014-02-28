@@ -3,6 +3,8 @@
 from application import db
 from application.models import User, News, Problem, Submission, Contest, Forum
 from datetime import datetime
+from hashlib import md5
+
 
 print 'Clearing old database...'
 db.drop_all()
@@ -13,12 +15,16 @@ db.create_all()
 print 'adding user'
 users = []
 for i in range(20):
-    u = User(u'user' + str(i),u'password' + str(i),u'admin@mrchenyi.com' + str(i),u'20081816' + str(i), datetime.now())
+    email = u'admin%s@mrchenyi.com' % str(i)
+    email_hash = md5()
+    email_hash.update(email)
+    email_hash = email_hash.hexdigest()
+    u = User(u'user' + str(i),u'password' + str(i),"%s|%s"%(email,email_hash),u'20081816' + str(i), datetime.now())
     users.append(u)
 
 for i in range(20):
     db.session.add(users[i])
-chenyi = User('admin', '123456', 'qq@qq.com', 'scpc_oj_username', datetime.now())
+chenyi = User('admin', '123456', 'chen_swust@foxmail.com|1ff531004d5ac7d9127a7ba9170ec323', 'scpc_oj_username', datetime.now())
 chenyi.group = "admin|user|manage user|manage problem|manage contest|manage news"
 db.session.add(chenyi)
 

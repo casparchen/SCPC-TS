@@ -22,6 +22,8 @@
     <link rel="stylesheet" type="text/css" href="/static/vendor/plugins/calendar/fullcalendar.css" />
     <link rel="stylesheet" type="text/css" href="/static/vendor/plugins/datatables/css/datatables.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/animate.css" />
+    <link rel="stylesheet" type="text/css" href="/static/vendor/editors/summernote/summernote.css" />
+
 
     <!-- Theme CSS -->
     <link rel="stylesheet" type="text/css" href="/static/css/theme.css" />
@@ -127,7 +129,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1>Forum</h1>
+                        <h1>Forum <button type="button" id="btn-create" class="btn btn-default btn-gradient pull-right">Create New</button></h1> 
                     </div>
                 </div>
                 <div class="row">
@@ -137,10 +139,10 @@
                                 {% for p in posts %}
                                 <tr style="border-top: 1px solid  #DDD;">
                                     <td width="50px">
-                                        <img src="https://cdn.v2ex.com/avatar/d8e4/2af9/54023_normal.png?m=1389450696" class="avatar" border="0" align="default">
+                                        <img src="http://gravatar.duoshuo.com/avatar/{{p.user_email_hash}}?s=50" class="avatar" border="0" align="default">
                                     </td>
                                     <td>
-                                        <p style="font-size: 18px;">{{p.title}}</p>
+                                        <p style="font-size: 18px;"><a href="/forum/post/{{p.id}}">{{p.title}}</a></p>
                                         <span style="background-color:#f5f5f5;color:#999;padding: 4px 4px 4px 4px;">Forum</span>
                                         <span style="color: #DDD;">•</span>
                                         <strong>{{p.user}}</strong>
@@ -195,6 +197,7 @@
 
     <!-- Plugins -->
     <script type="text/javascript" src="/static/vendor/plugins/calendar/gcal.js"></script>
+    <script type="text/javascript" src="/static/vendor/editors/summernote/summernote.js"></script>
     <!-- Calendar Addon -->
     <script type="text/javascript" src="/static/vendor/plugins/jqueryflot/jquery.flot.resize.min.js"></script>
     <!-- Flot Charts Addon -->
@@ -213,6 +216,9 @@
         	// Init Theme Core 	  
         	Core.init();
             SCPC();
+
+            
+
               
             var options = {
         		currentPage: {{current_page}},
@@ -236,10 +242,82 @@
         	}
         	// init paginator
         	$('#paginator-problem-list').bootstrapPaginator(options);
+
+            $('#btn-create').click(function(){
+                $.getJSON("/user/login_status", function(data){
+                    if(data.login_status == false){
+                        alert('Please login first.');
+                    }else{
+                        $('#wnd-reply').modal();
+                        $('.summernote').summernote({
+                           height: 255,   //set editable area's height
+                           focus: false  //set focus editable area after Initialize summernote
+                         });
+
+                        var current_height = $(window).height()*3/5;
+                        var current_width = $(window).width()*3/5;
+                        $('#post-to-submit').height(current_height);
+                        $('#post-to-submit').width(current_width);
+                        $('.modal-dialog').width(current_width+40)
+                        $('#post-to-submit').css("minHeight", current_height);
+                        $('#post-to-submit').css("maxHeight", current_height);
+                        $('#post-to-submit').css("maxWidth", current_width);
+                        $('#post-to-submit').css("minWidth", current_width);
+                    }
+                });
+            });
+
+            $('#btn-reply-confirm').click(function(){
+                $('#btn-reply-confirm').attr('disabled',"true")
+                $.ajax({
+                  url: '/forum/submit',
+                  method: 'POST',
+                  data: {
+                    content:$('#editor-post').code(),
+                    title:$('#editor-title').val(),
+                    father_node:0
+                  },
+                  success: function(data){
+                    data = $.parseJSON(data);
+                    if(data.result == "ok"){
+                        window.location.href = "/forum";
+                    }else{
+                        alert('Submit failed. Responding message: [' + data.result + "]");
+                        $('#btn-reply-confirm').removeAttr("disabled"); 
+                    }
+                  },
+                  type: 'json'
+                });
+            });
         
         
         });
     </script>
+<div class="modal fade" id="wnd-reply" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div id="news_window_content">
+            <div id="tab-reply" class="tab-pane">
+                <div class="row">
+                    <div class='col-md-12'>
+                        <label>Title</label><input type="text" id="editor-title" class="form-control" placeholder="Type Here...">
+                    </div>
+                    <br />
+                    <div class='col-md-12' style="padding-top:10px;">
+                        <div class="summernote" style="height: 400px;" id="editor-post"></div>
+                    </div>
+                    
+                    <div class='col-md-3'>
+                        <button type="button" id="btn-reply-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 

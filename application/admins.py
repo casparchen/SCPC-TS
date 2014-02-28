@@ -49,7 +49,12 @@ class MySubmissionModelView(ModelView):
             return False
         return ('manage submission' in flask_login.current_user.group.split('|'))
         
-
+class MyForumModelView(ModelView):
+    can_create = False
+    def is_accessible(self):
+        if flask_login.current_user.get_id() is None:
+            return False
+        return ('manage forum' in flask_login.current_user.group.split('|'))
 
 class Add_HDOJ_Problem_View(BaseView):
     @expose('/')
@@ -163,10 +168,10 @@ class Add_PKUOJ_Problem_View(BaseView):
 admin.add_view(MyUserModelView(models.User, db.session))
 admin.add_view(MyProblemModelView(models.Problem, db.session, category='Problem'))
 admin.add_view(MyNewsModelView(models.News, db.session))
+admin.add_view(MyForumModelView(models.Forum, db.session))
 admin.add_view(MyContestModelView(models.Contest, db.session))
 admin.add_view(MySubmissionModelView(models.Submission, db.session))
 admin.add_view(Add_HDOJ_Problem_View(name='Add HDOJ Problem', category='Problem'))
 admin.add_view(Add_PKUOJ_Problem_View(name='Add PKU OJ Problem', category='Problem'))
-
 
         

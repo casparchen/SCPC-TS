@@ -39,7 +39,7 @@ for i in range(1):
 print "adding Contests"
 p1 = None
 for i in range(11):
-    p1 = Contest(u"contests" + str(i), u"1000", datetime.now(), datetime.now(),"110 101 110",False, u"1sssss", u"description")
+    p1 = Contest(u"contests" + str(i), u"1000", datetime.now(), datetime.now(),"110|101|110",False, u"1sssss", u"description")
     db.session.add(p1)
 
 

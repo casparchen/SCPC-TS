@@ -209,6 +209,27 @@ def post(id, page):
                 total_page = int(math.ceil(Forum.query.filter(Forum.father_node == p.id).count()/10.0)),
                 current_page = page + 1
                 )
+@app.route('/forum/submit', methods=['POST'])
+@login_required
+def forum_submit():
+    if request.method == 'POST':
+        try:
+            if len(request.form['content']) < 5:
+                raise Exception("Content is too short. 5+ required.")
+            if len(request.form['title']) < 5:
+                raise Exception("Title is too short. 5+ required.")
+            father_node = None
+            if request.form['father_node']: father_node = request.form['father_node']
+            user = g.user
+            pst = Forum(request.form['title'], request.form['content'], datetime.now(), father_node, user, None)
+            db.session.add(pst)
+            db.session.commit()
+            return json.dumps({"result": "ok"})
+        except Exception, e:
+            return json.dumps({"result": str(e)})
+    return json.dumps({"result": "Only support POST request."})
+
+
 
 @app.route('/contests/')
 @app.route('/contests/<int:page>/')

@@ -189,7 +189,6 @@ def contests(page=0):
 			d['contestants']=row.contestants
 			d['ranklist']=row.ranklist
 			objects_list.append(d)
-#		return "ok"
 		return render_template("contests.html",
 		    contests=objects_list,
 		    total_page = int(math.ceil(Problem.query.count()/10.0))+1,
@@ -200,6 +199,24 @@ def contests(page=0):
 		
 	return redirect(url_for('index'))
 
+@app.route('/contest/')
+@app.route('/contest/<int:page>/')
+def contest(page=1):
+	if type(page)==int:
+		if page<1:page=1
+		row=Contest.query.get(page)
+		return render_template("contest.html",
+             title=row.title,
+             start_time=row.start_time,
+             end_time=row.end_time,
+             description=row.description,
+             site_name = app.config['SCPC_TS_SITE_NAME']
+		     )
+	return redirect(url_for('index'))
+    
+    
+    
+   
 @app.route('/')
 @app.route('/index')
 @cache.cached(timeout=5)

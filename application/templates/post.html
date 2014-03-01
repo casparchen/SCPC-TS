@@ -139,7 +139,7 @@
                                                 <span style="color: #939191;">• {{post.last_update_time}}</span>
                                             </td>
                                             <td width="75px;" class="pull-right">
-                                                <img src="http://gravatar.duoshuo.com/avatar/{{email_hash}}?s=75" class="avatar" border="0" align="default">
+                                                <img src="http://gravatar.duoshuo.com/avatar/{{email_hash}}?s=75&d=mm" class="avatar" border="0" align="default">
                                             </td>
                                         </tr>
                                     </table>
@@ -160,7 +160,7 @@
                                     {% for p in replys %}
                                     <tr style="border-top: 1px solid  #DDD;">
                                         <td width="50px">
-                                            <img src="https://cdn.v2ex.com/avatar/d8e4/2af9/54023_normal.png?m=1389450696" class="avatar" border="0" align="default">
+                                            <img src="http://gravatar.duoshuo.com/avatar/{{p.user.email.split("|")[1]}}?s=50&d=mm" class="avatar" border="0" align="default">
                                         </td>
                                         <td>
                                             <p style="font-size: 15px;">{{p.user.username}}&nbsp;&nbsp;

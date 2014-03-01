@@ -66,8 +66,8 @@ def news(action, id):
 def submit():
     if request.method == 'POST':
         try:
-            if len(request.form['code']) < 20:
-                raise Exception("Code is too short. 20+ required.")
+            if len(request.form['code']) < 50:
+                raise Exception("Code is too short. 50+ required.")
             if request.form['compiler'] != 'gcc' and request.form['compiler'] != 'g++' and request.form['compiler'] != 'java':
                 raise Exception("Please select compiler.")
             user = g.user
@@ -276,11 +276,11 @@ def contests(page=0):
 	return redirect(url_for('index'))
 
 @app.route('/contest/')
-@app.route('/contest/<int:page>/')
-def contest(page=1):
-	if type(page)==int:
-		if page<1:page=1
-		row=Contest.query.get(page)
+@app.route('/contest/<int:id>/')
+def contest(id=1):
+	if type(id)==int:
+		if id<1:id=1
+		row=Contest.query.get(id)
 		return render_template("contest.html",
              title=row.title,
              start_time=row.start_time,
@@ -289,9 +289,78 @@ def contest(page=1):
              site_name = app.config['SCPC_TS_SITE_NAME']
 		     )
 	return redirect(url_for('index'))
-    
-    
-    
+
+
+
+@app.route('/contest/<int:id>/submissions/', defaults={'page': 1})
+@app.route('/contest/<int:id>/submissions/<int:page>')
+@cache.cached(timeout=3)
+def contest_submission(id, page):
+    if type(page) == int:
+        page = 0 if page<1 else page-1
+        try:
+            cont = Contest.query.get(id)
+            if cont is None: raise Exception("contest not found.")
+            problems = map(int,cont.problems.split("|"))
+            sql = ""
+            for x in problems:
+                if sql != "": sql = sql + " or "
+                sql = sql + "problem_id=%d" % x
+            if sql == "": raise Exception("no problems.")
+            data = Submission.query.from_statement("SELECT * FROM submission WHERE %s order by id desc limit %d,%d" % (sql, page*10, 10)).all()
+            objects_list = []
+            for row in data:
+                d = collections.OrderedDict()
+                d['id'] = row.id
+                d['problem_title'] = row.problem.title
+                d['username'] = row.user.username
+                d['result'] = row.result
+                d['memory_used'] = row.memory_used
+                d['time_used'] = row.time_used
+                d['compiler'] = row.compiler
+                d['code'] = len(row.code)
+                d['submit_time'] = row.submit_time
+                objects_list.append(d)
+            total_page = int(db.session.execute("SELECT COUNT(*) FROM submission WHERE %s" % sql).first()[0])
+            total_page = int(math.ceil(total_page/10.0))
+            if total_page <= 0: total_page = 1
+            return render_template('contest_submission.html', 
+                contest = cont,
+                submissions = objects_list,
+                total_page = total_page,
+                current_page = page + 1,
+                site_name = app.config['SCPC_TS_SITE_NAME']
+                )
+        except Exception, e:
+            print e
+            return redirect(url_for('index'))
+
+@app.route('/contest/<int:cid>/problem/<pid>/')
+@cache.cached(timeout=3)
+def contest_problem(cid, pid):
+    try:
+        cont = Contest.query.get(cid)
+        if cont is None: raise Exception("contest not found.")
+        problems = map(int,cont.problems.split("|"))
+        if len(pid) == 1: 
+            pid = ord(pid) - ord('A')
+            if not 0<=pid<=len(problems): raise Exception("problem not found.")
+            pid = problems[pid]
+        else:
+            pid = int(x)
+            if not pid in problems: raise Exception("problem not found..")
+        print pid
+        problem = Problem.query.get(pid)
+        if problem is None: raise Exception("problem not found...")
+        return render_template('contest_problem.html', 
+            contest = cont,
+            problem = problem,
+            site_name = app.config['SCPC_TS_SITE_NAME']
+            )
+    except Exception, e:
+        print e
+        return redirect(url_for('index'))
+
    
 @app.route('/')
 @app.route('/index')

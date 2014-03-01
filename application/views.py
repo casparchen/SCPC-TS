@@ -267,7 +267,7 @@ def contests(page=0):
 			objects_list.append(d)
 		return render_template("contests.html",
 		    contests=objects_list,
-		    total_page = int(math.ceil(Problem.query.count()/10.0))+1,
+		    total_page = int(math.ceil(Contest.query.count()/10.0)),
 		    current_page = page + 1,
 		    ctime=datetime.now(),
             site_name = app.config['SCPC_TS_SITE_NAME']
@@ -276,16 +276,33 @@ def contests(page=0):
 	return redirect(url_for('index'))
 
 @app.route('/contest/')
-@app.route('/contest/<int:id>/')
-def contest(id=1):
-	if type(id)==int:
-		if id<1:id=1
-		row=Contest.query.get(id)
+@app.route('/contest/<int:page>/')
+def contest(page=1):
+	if type(page)==int:
+		if page<1:page=1
+		row=Contest.query.get(page)
+		problem_list=map(int,row.problems.split('|'))
+		idlist=[]
+		number_list=range(0,len(problem_list))
+		for item in number_list:
+			idlist.append(chr(ord('A') + item))
+		problems=[]
+		for item in problem_list:
+			problems.append(Problem.query.get(item))
+		totaltime=math.ceil((row.end_time-row.start_time).total_seconds()/60)
+		havetime=math.ceil((row.end_time-datetime.now()).total_seconds()/60)
+		if havetime<0:havetime=0
+		elif havetime>totaltime:havetime=totaltime
 		return render_template("contest.html",
              title=row.title,
              start_time=row.start_time,
              end_time=row.end_time,
              description=row.description,
+             problems=problems,             #待优化
+             idlist=idlist,
+             number_list=number_list,
+             totaltime=totaltime,
+             havetime=havetime,
              site_name = app.config['SCPC_TS_SITE_NAME']
 		     )
 	return redirect(url_for('index'))

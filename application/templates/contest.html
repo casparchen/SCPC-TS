@@ -66,7 +66,6 @@
 
     <!-- Start: Main -->
     <div id="main">
-
         <!-- Start: Content -->
         <section id="contest_section">
             <div class="container">
@@ -128,29 +127,21 @@
                                         <table class="table table-hover table-striped1 text-center">
                                             <thead>
                                                 <tr style="background-color:#43a5ad;color:white">
+													<td>ID</td>
                                                     <td>Title</td>
                                                     <td width="15%">Result</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
+												{%  for  num in number_list %}
                                                 <tr>
-                                                    <td>
-                                                        <a href="problem.html">Problem A: A Simple Problem</a>
+                                                    <td>{{idlist[num] }}</td>
+													<td>
+                                                        <a href="problem/{{num}}">{{problems[num].title}}</a>
                                                     </td>
                                                     <td>Accepted</td>
                                                 </tr>
-                                                <tr>
-                                                    <td>
-                                                        <a href="problem.html">Problem B: A Simple Problem</a>
-                                                    </td>
-                                                    <td>Accepted</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <a href="problem.html">Problem C: A Simple Problem</a>
-                                                    </td>
-                                                    <td>Accepted</td>
-                                                </tr>
+                                                {%  endfor %}
                                             </tbody>
                                         </table>
                                     </div>
@@ -220,14 +211,15 @@
             SCPC();
             $("#knob-clock").knob({
                 width: 100,
+                max:{{totaltime}},
                 height: 100,
                 readOnly: true,
                 displayInput: true,
                 thickness: ".3",
-                fgColor: '#ff6767',
-                bgColor: '#4cbcf7'
+                fgColor: '#4cbcf7',
+                bgColor: '#ff6767'
             });
-	        $("#knob-clock").val(36).trigger('change');
+	        $("#knob-clock").val({{havetime}}).trigger('change');
         
         });
     </script>

@@ -275,7 +275,6 @@ def contests(page=0):
 		
 	return redirect(url_for('index'))
 
-@app.route('/contest/')
 @app.route('/contest/<int:page>/')
 def contest(page=1):
 	if type(page)==int:

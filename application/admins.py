@@ -7,6 +7,7 @@ from flask import request
 import urllib2,re
 import json
 import sys
+from datetime import datetime
 
 
 
@@ -61,7 +62,6 @@ class MyContestModelView(ModelView):
                 return json.dumps({"result" : "ok"})
             except Exception, e:
                 db.session.rollback()
-                raise e
                 return json.dumps({"result" : "Adding contest failed." + str(e)})
     @expose('/del_problem', methods=('GET','POST',))
     def del_problem(self):
@@ -82,7 +82,6 @@ class MyContestModelView(ModelView):
                 return json.dumps({"result" : "ok"})
             except Exception, e:
                 db.session.rollback()
-                raise e
                 return json.dumps({"result" : "delete problem failed." + str(e)})
 
     @expose('/modify/<int:id>')
@@ -90,7 +89,9 @@ class MyContestModelView(ModelView):
         try:
             cont = models.Contest.query.get(id)
             if cont is None: raise("contest not found.")
-            problem_list=map(int,cont.problems.split('|'))
+            problem_list = []
+            if cont.problems is not None and cont.problems != "":
+                problem_list=map(int,cont.problems.split('|'))
             problems=[]
             for item in problem_list:
                 problems.append(models.Problem.query.get(item))
@@ -100,8 +101,7 @@ class MyContestModelView(ModelView):
                 problems=problems,
                 contest_id=cont.id)
         except Exception, e:
-            print e
-            return str(e)
+            return self.render('exception.html', message=str(e))
 
 class MySubmissionModelView(ModelView):
     can_create = False
@@ -126,9 +126,20 @@ class Add_HDOJ_Problem_View(BaseView):
     def submit(self):
         if request.method == 'POST':
             try:
-                p = models.Problem(None, None, request.form['original_oj'], request.form['original_oj_id'], request.form['title'], request.form['memory_limit'], request.form['time_limit'], request.form['description'], request.form['input'], request.form['output'], request.form['sample_input'], request.form['sample_output'], request.form['hint'])
+                cid = int(request.form['selected_contest'])
+                if cid == -1: 
+                    cid = None 
+                else:
+                    cont = models.Contest.query.get(cid)
+                    if cont is None: raise Exception("The selected contest does not exsit.")
+                p = models.Problem(cid, None, request.form['original_oj'], request.form['original_oj_id'], request.form['title'], request.form['memory_limit'], request.form['time_limit'], request.form['description'], request.form['input'], request.form['output'], request.form['sample_input'], request.form['sample_output'], request.form['hint'])
                 db.session.add(p)
                 db.session.commit()
+                if cid != None:
+                    if cont.problems != "":
+                        cont.problems = cont.problems + "|"
+                    cont.problems = cont.problems + str(p.id)
+                    db.session.commit()
                 return json.dumps({"result" : "ok"})
             except Exception, e:
                 db.session.rollback()
@@ -146,6 +157,7 @@ class Add_HDOJ_Problem_View(BaseView):
             text  = response.read()
             match = re.compile('<h1 style=\'color:#1A5CC8\'>(.*?)<\/h1>.*?Time Limit.*?\/(\d*).*?Problem Description.*?<div class=panel_content>(.*?)<\/div>.*?Input.*?<div class=panel_content>(.*?)<\/div>.*?Output.*?<div class=panel_content>(.*?)<\/div>.*?Sample Input.*?<div class=panel_content><pre>.*?>(.*?)<\/.*?<\/pre>.*?Sample Output.*?<pre>.*?>(.*?)<\/?div.*?<\/pre>', re.M | re.S)
             last_sub = match.findall(text)
+            conts = models.Contest.query.filter(models.Contest.end_time > datetime.now()).all()
             problem = {}
             problem['title'] = last_sub[0][0]
             problem['original_oj_id'] = hdoj_id
@@ -160,10 +172,9 @@ class Add_HDOJ_Problem_View(BaseView):
             problem['hint'] = ""
             problem['sample_input'] = problem['sample_input'].replace('\r\n', '<br/>')
             problem['sample_output'] = problem['sample_output'].replace('\r\n', '<br/>')
-            return self.render('admin/problem_form.html', problem=problem)
+            return self.render('admin/problem_form.html', problem=problem,contests=conts)
         except Exception, e:
-            print e
-            return "failed"
+            return self.render('exception.html', message=str(e))
 
     def is_accessible(self):
         if flask_login.current_user.get_id() is None:
@@ -179,9 +190,20 @@ class Add_PKUOJ_Problem_View(BaseView):
     def submit(self):
         if request.method == 'POST':
             try:
-                p = models.Problem(None, None, request.form['original_oj'], request.form['original_oj_id'], request.form['title'], request.form['memory_limit'], request.form['time_limit'], request.form['description'], request.form['input'], request.form['output'], request.form['sample_input'], request.form['sample_output'], request.form['hint'])
+                cid = int(request.form['selected_contest'])
+                if cid == -1: 
+                    cid = None
+                else:
+                    cont = models.Contest.query.get(cid)
+                    if cont is None: raise Exception("The selected contest does not exsit.")
+                p = models.Problem(cid, None, request.form['original_oj'], request.form['original_oj_id'], request.form['title'], request.form['memory_limit'], request.form['time_limit'], request.form['description'], request.form['input'], request.form['output'], request.form['sample_input'], request.form['sample_output'], request.form['hint'])
                 db.session.add(p)
                 db.session.commit()
+                if cid != None:
+                    if cont.problems != "":
+                        cont.problems = cont.problems + "|"
+                    cont.problems = cont.problems + str(p.id)
+                    db.session.commit()
                 return json.dumps({"result" : "ok"})
             except Exception, e:
                 db.session.rollback()
@@ -194,6 +216,7 @@ class Add_PKUOJ_Problem_View(BaseView):
         try:
             reload(sys)
             sys.setdefaultencoding('utf-8')
+            conts = models.Contest.query.filter(models.Contest.end_time > datetime.now()).all()
             problem_url = "http://poj.org/problem?id=" + str(oj_id)
             response = urllib2.urlopen(problem_url)
             text  = response.read()
@@ -213,10 +236,9 @@ class Add_PKUOJ_Problem_View(BaseView):
             problem['hint'] = ""
             problem['sample_input'] = problem['sample_input'].replace('\r\n', '<br/>')
             problem['sample_output'] = problem['sample_output'].replace('\r\n', '<br/>')
-            return self.render('admin/problem_form.html', problem=problem)
+            return self.render('admin/problem_form.html', problem=problem, contests=conts)
         except Exception, e:
-            print e
-            return "failed"
+            return self.render('exception.html', message=str(e))
 
     def is_accessible(self):
         if flask_login.current_user.get_id() is None:

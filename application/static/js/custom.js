@@ -24,10 +24,9 @@ var SCPC = function () {
             $('#user-area').append("<button class='btn btn-primary btn-gradient' id='btn-login-form'><i class='fa fa-keyboard-o'></i><b>Login</b></button>");
             $('#btn-login-form').click(function () {
                 $.get('/user/login_form', function(data){
-                    if(!$('#LoginModal').length)
+                    if(!$('#LoginModal').length){
                         $('body').append(data);
-                    $('#LoginModal').modal();
-                    $('#btn-login').click(function(){
+                        $('#btn-login').click(function(){
                         $.ajax({
                             cache: true,
                             type: "POST",
@@ -42,16 +41,16 @@ var SCPC = function () {
                                 
                                 if(data.result == 'ok'){
                                     alert("Dear " + data.username + ", welcome back!");
-                                    window.location.href=document.referrer;
+                                    window.location.href=window.location.href;
                                 }else{
                                     alert("Username or Password does not match!");
-                                    window.location.href=document.referrer;  
                                 }
                             }
                         });
 
                     });
-
+                    }
+                    $('#LoginModal').modal();
                 });
             });
         }

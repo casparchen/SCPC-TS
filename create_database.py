@@ -19,7 +19,11 @@ for i in range(20):
     email_hash = md5()
     email_hash.update(email)
     email_hash = email_hash.hexdigest()
-    u = User(u'user' + str(i),u'password' + str(i),"%s|%s"%(email,email_hash),u'20081816' + str(i), datetime.now())
+    password = u'password' + str(i)
+    password_hash = md5()
+    password_hash.update(password)
+    password_hash = password_hash.hexdigest()
+    u = User(u'user' + str(i),password_hash,"%s|%s"%(email,email_hash),None, datetime.now())
     users.append(u)
 
 for i in range(20):

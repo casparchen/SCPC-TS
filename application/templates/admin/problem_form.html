@@ -56,7 +56,15 @@
                                     {{problem.hint|safe}}
                                 </div>
                             </div>
+                            <select id="selected_contest">
+                                <option value='-1'>no in contest</option>
+                                {% for c in contests %}
+                                <option value='{{c.id}}'>{{c.title}}</option>
+                                {% endfor %}
+                            </select>
+                            <br />
                             <button type="button" id="btn-submit" class="btn btn-light6 btn-gradient">Submit</button>
+                            <br />
                         </div>
                     </div>
                     
@@ -88,7 +96,8 @@
                     output:$('#content_output').html(),
                     sample_input:$('#content_sample_input').html(),
                     sample_output:$('#content_sample_output').html(),
-                    hint:$('#content_hint').html()
+                    hint:$('#content_hint').html(),
+                    selected_contest:$('#selected_contest').val()
                   },
                   success: function(data){
                     data = $.parseJSON(data);

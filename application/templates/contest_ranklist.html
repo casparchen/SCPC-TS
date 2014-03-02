@@ -83,7 +83,7 @@
                                         <a href="../">Problems</a>
                                     </li>
                                     <li>
-                                        <a href="submissions">Submissions</a>
+                                        <a href="../submissions">Submissions</a>
                                     </li>
                                     <li class="active">
                                         <a href="../ranklist" data-toggle="tab">Ranklist</a>
@@ -105,7 +105,7 @@
                                                     <td>Solved</td>
                                                     <td>Penalty</td>
                                                     {% for p in problems %}
-                                                    <td>{{loop.index}}</td>
+                                                    <td>{{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"[loop.index]}}</td>
                                                     {% endfor %}
                                                 </tr>
                                             </thead>

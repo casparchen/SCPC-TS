@@ -37,10 +37,71 @@ class MyNewsModelView(ModelView):
         return ('manage news' in flask_login.current_user.group.split('|'))
 
 class MyContestModelView(ModelView):
+    list_template = "admin/list_contest.html"
     def is_accessible(self):
         if flask_login.current_user.get_id() is None:
             return False
         return ('manage contest' in flask_login.current_user.group.split('|'))
+
+    @expose('/submit', methods=('GET','POST',))
+    def submit(self):
+        if request.method == 'POST':
+            try:
+                contest_id = int(request.form['id'])
+                if contest_id != 0:
+                    cont = models.Contest.query.get(contest_id)
+                    cont.title = request.form['title']
+                    cont.description = request.form['description']
+                    cont.start_time = request.form['start_time']
+                    cont.end_time = request.form['end_time']
+                else:
+                    cont = models.Contest(request.form['title'],request.form['description'],request.form['start_time'],request.form['end_time'])
+                    db.session.add(cont)
+                db.session.commit()
+                return json.dumps({"result" : "ok"})
+            except Exception, e:
+                db.session.rollback()
+                raise e
+                return json.dumps({"result" : "Adding contest failed." + str(e)})
+    @expose('/del_problem', methods=('GET','POST',))
+    def del_problem(self):
+        if request.method == 'POST':
+            try:
+                problem_id = int(request.form['pid'])
+                contest_id = int(request.form['cid'])
+                cont = models.Contest.query.get(contest_id)
+                if cont is None: raise Exception('contest not found.')
+                problems = map(int, cont.problems.split('|'))
+                problems.remove(problem_id)
+                txt = ""
+                for x in problems:
+                    if txt != "": txt = txt + "|"
+                    txt = txt + str(x)
+                cont.problems = txt
+                db.session.commit()
+                return json.dumps({"result" : "ok"})
+            except Exception, e:
+                db.session.rollback()
+                raise e
+                return json.dumps({"result" : "delete problem failed." + str(e)})
+
+    @expose('/modify/<int:id>')
+    def request_1(self, id):
+        try:
+            cont = models.Contest.query.get(id)
+            if cont is None: raise("contest not found.")
+            problem_list=map(int,cont.problems.split('|'))
+            problems=[]
+            for item in problem_list:
+                problems.append(models.Problem.query.get(item))
+            return self.render('admin/edit_contest.html', 
+                contest=cont,
+                number_list=range(0,len(problem_list)),
+                problems=problems,
+                contest_id=cont.id)
+        except Exception, e:
+            print e
+            return str(e)
 
 class MySubmissionModelView(ModelView):
     can_create = False

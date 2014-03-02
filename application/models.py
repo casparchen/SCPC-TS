@@ -34,7 +34,7 @@ class User(db.Model):
             return False
 
 
-    def __init__(self, username="", password="", email="", scpc_oj_username="", last_login_time=datetime.utcnow()):
+    def __init__(self, username="", password="", email="", scpc_oj_username="", last_login_time=datetime.now()):
         self.username = username
         self.password = password
         self.email = email
@@ -52,7 +52,7 @@ class News(db.Model):
     content = db.Column(db.Text)
 
 
-    def __init__(self, publish_time=datetime.utcnow(), title="", content=""):
+    def __init__(self, publish_time=datetime.now(), title="", content=""):
         self.publish_time = publish_time
         self.title = title
         self.content = content
@@ -106,7 +106,7 @@ class Contest(db.Model):
     private=db.Column(db.Boolean,nullable=False)
     contestants=db.Column(db.Text)
     ranklist=db.Column(db.Text)
-    def __init__(self,title="",description="",start_time=datetime.utcnow(),end_time=datetime.utcnow(),problems="",private=False,contestants="",ranklist=""):
+    def __init__(self,title="",description="",start_time=datetime.now(),end_time=datetime.now(),problems="",private=False,contestants="",ranklist=""):
         self.title=title
         self.description=description
         self.start_time=start_time

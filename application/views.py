@@ -19,7 +19,6 @@ def before_request():
     g.user = current_user
 
 
-@app.route('/user/<action>/', methods=['GET', 'POST'])
 @app.route('/user/<action>', methods=['GET', 'POST'])
 def login(action):
     if action == "login_status":
@@ -75,7 +74,16 @@ def submit():
             problem = Problem.query.get(problem)
             if problem is None:
                 raise Exception("Problem not found.")
-            smt = Submission(user, problem, datetime.utcnow(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj, problem.original_oj_id)
+            if problem.owner_contest_id != None:
+                cont = Contest.query.get(problem.owner_contest_id)
+                if cont is None: raise Exception("Contest not found.")
+                if not (cont.start_time < datetime.now() < cont.end_time):
+                    raise Exception('Contest has not begun or had already ended.')
+                if cont.private == True:
+                    contestants = map(int, cont.contestants.split('|'))
+                    if g.user.id not in contestants:
+                        raise Exception("This contest is private and you have not been invited.")
+            smt = Submission(user, problem, datetime.now(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj, problem.original_oj_id)
             db.session.add(smt)
             db.session.commit()
             return json.dumps({"result": "ok"})
@@ -124,6 +132,9 @@ def problem(id):
     if type(id) == int:
         id = 1 if id < 1 else id
         p = Problem.query.get(id)
+        if p is None: return "problem not found."
+        if p.owner_contest_id is not None: 
+            return "bad boy!"
         return render_template('problem.html',
             site_name = app.config['SCPC_TS_SITE_NAME'],
             problem = p
@@ -222,13 +233,13 @@ def post(id, page):
 def forum_submit():
     if request.method == 'POST':
         try:
-            if len(request.form['content']) < 5:
-                raise Exception("Content is too short. 5+ required.")
+            if len(request.form['content']) < 3:
+                raise Exception("Content is too short. 3+ required.")
             father_node = int(request.form['father_node'])
             title = None
             if father_node == 0:
                 title = request.form['title']
-                if len(title) < 5: raise Exception("Title is too short. 5+ required.")
+                if len(title) < 3: raise Exception("Title is too short. 3+ required.")
             user = g.user
             time_now = datetime.now()
             pst = Forum(title, request.form['content'], time_now, father_node, user, None)
@@ -249,63 +260,79 @@ def forum_submit():
 @app.route('/contests/<int:page>/')
 @cache.cached(timeout=3)
 def contests(page=0):
-	if type(page)==int:
-		page=0 if page<1 else page-1
-		data=Contest.query.order_by(db.desc(Contest.id)).limit(10).offset(page*10).all()
-		objects_list=[]
-		for row in data:
-			d=collections.OrderedDict()
-			d['id']=row.id
-			d['title']=row.title
-			d['description']=row.description
-			d['start_time']=row.start_time
-			d['end_time']=row.end_time
-			d['problems']=row.problems
-			d['private']=row.private
-			d['contestants']=row.contestants
-			d['ranklist']=row.ranklist
-			objects_list.append(d)
-		return render_template("contests.html",
-		    contests=objects_list,
-		    total_page = int(math.ceil(Contest.query.count()/10.0)),
-		    current_page = page + 1,
-		    ctime=datetime.now(),
+    if type(page)==int:
+        page=0 if page<1 else page-1
+        data=Contest.query.order_by(db.desc(Contest.id)).limit(10).offset(page*10).all()
+        objects_list=[]
+        for row in data:
+            d=collections.OrderedDict()
+            d['id']=row.id
+            d['title']=row.title
+            d['description']=row.description
+            d['start_time']=row.start_time
+            d['end_time']=row.end_time
+            d['problems']=row.problems
+            d['private']=row.private
+            d['contestants']=row.contestants
+            d['ranklist']=row.ranklist
+            objects_list.append(d)
+        return render_template("contests.html",
+            contests=objects_list,
+            total_page = int(math.ceil(Contest.query.count()/10.0)),
+            current_page = page + 1,
+            ctime=datetime.now(),
             site_name = app.config['SCPC_TS_SITE_NAME']
-		)
-		
-	return redirect(url_for('index'))
+        )
+        
+    return redirect(url_for('index'))
 
 @app.route('/contest/')
-@app.route('/contest/<int:page>/')
-def contest(page=1):
-	if type(page)==int:
-		if page<1:page=1
-		row=Contest.query.get(page)
-		problem_list=map(int,row.problems.split('|'))
-		idlist=[]
-		number_list=range(0,len(problem_list))
-		for item in number_list:
-			idlist.append(chr(ord('A') + item))
-		problems=[]
-		for item in problem_list:
-			problems.append(Problem.query.get(item))
-		totaltime=math.ceil((row.end_time-row.start_time).total_seconds()/60)
-		havetime=math.ceil((row.end_time-datetime.now()).total_seconds()/60)
-		if havetime<0:havetime=0
-		elif havetime>totaltime:havetime=totaltime
-		return render_template("contest.html",
-             title=row.title,
-             start_time=row.start_time,
-             end_time=row.end_time,
-             description=row.description,
-             problems=problems,             #待优化
-             idlist=idlist,
-             number_list=number_list,
-             totaltime=totaltime,
-             havetime=havetime,
-             site_name = app.config['SCPC_TS_SITE_NAME']
-		     )
-	return redirect(url_for('index'))
+@app.route('/contest/<int:cid>/')
+def contest(cid=1):
+    if type(cid)==int:
+        try:
+            cont=Contest.query.get(cid)
+            if cont is None: raise Exception("Contest not found.")
+            if cont.private == True:
+                contestants = map(int, cont.contestants.split('|'))
+                if g.user.is_anonymous() == True:
+                    raise Exception("This contest is private. Please login first.")
+                if g.user.id not in contestants:
+                    raise Exception("This contest is private and you have not been invited.")
+            problem_list=map(int,cont.problems.split('|'))
+            idlist=[]
+            number_list=range(0,len(problem_list))
+            for item in number_list:
+                idlist.append(chr(ord('A') + item))
+            problems=[]
+            solved=[]
+            for item in problem_list:
+                problems.append(Problem.query.get(item))
+                user_id = -1 if g.user is None else g.user.id
+                if int(db.session.execute("SELECT COUNT(*) FROM submission WHERE problem_id = %d and user_id=%d and result='Accepted'"%(item, user_id)).first()[0]) > 0:
+                    solved.append(True)
+                else:
+                    solved.append(False)
+            totaltime=math.ceil((cont.end_time-cont.start_time).total_seconds()/60)
+            havetime=math.ceil((cont.end_time-datetime.now()).total_seconds()/60)
+            if havetime<0:havetime=0
+            elif havetime>totaltime:havetime=totaltime
+            return render_template("contest.html",
+                 title=cont.title,
+                 start_time=cont.start_time,
+                 end_time=cont.end_time,
+                 description=cont.description,
+                 problems=problems,             #待优化
+                 idlist=idlist,
+                 number_list=number_list,
+                 totaltime=totaltime,
+                 havetime=havetime,
+                 solved=solved,
+                 site_name = app.config['SCPC_TS_SITE_NAME']
+                 )
+        except Exception, e:
+            return render_template('exception.html', message = str(e))
+        
 
 
 
@@ -314,10 +341,16 @@ def contest(page=1):
 @cache.cached(timeout=3)
 def contest_submission(id, page):
     if type(page) == int:
-        page = 0 if page<1 else page-1
         try:
+            page = 0 if page<1 else page-1
             cont = Contest.query.get(id)
             if cont is None: raise Exception("contest not found.")
+            if cont.private == True:
+                contestants = map(int, cont.contestants.split('|'))
+                if g.user.is_anonymous() == True:
+                    raise Exception("This contest is private. Please login first.")
+                if g.user.id not in contestants:
+                    raise Exception("This contest is private and you have not been invited.")
             problems = map(int,cont.problems.split("|"))
             sql = ""
             for x in problems:
@@ -349,8 +382,7 @@ def contest_submission(id, page):
                 site_name = app.config['SCPC_TS_SITE_NAME']
                 )
         except Exception, e:
-            print e
-            return redirect(url_for('index'))
+            return render_template('exception.html', message = str(e))
 
 @app.route('/contest/<int:cid>/problem/<pid>/')
 @cache.cached(timeout=3)
@@ -358,6 +390,12 @@ def contest_problem(cid, pid):
     try:
         cont = Contest.query.get(cid)
         if cont is None: raise Exception("contest not found.")
+        if cont.private == True:
+            contestants = map(int, cont.contestants.split('|'))
+            if g.user.is_anonymous() == True:
+                raise Exception("This contest is private. Please login first.")
+            if g.user.id not in contestants:
+                raise Exception("This contest is private and you have not been invited.")
         problems = map(int,cont.problems.split("|"))
         if len(pid) == 1: 
             pid = ord(pid) - ord('A')
@@ -366,7 +404,6 @@ def contest_problem(cid, pid):
         else:
             pid = int(x)
             if not pid in problems: raise Exception("problem not found..")
-        print pid
         problem = Problem.query.get(pid)
         if problem is None: raise Exception("problem not found...")
         return render_template('contest_problem.html', 
@@ -375,8 +412,74 @@ def contest_problem(cid, pid):
             site_name = app.config['SCPC_TS_SITE_NAME']
             )
     except Exception, e:
-        print e
-        return redirect(url_for('index'))
+        return render_template('exception.html', message = str(e))
+
+@app.route('/contest/<int:cid>/ranklist/')
+@cache.cached(timeout=15)
+def contest_ranklist(cid):
+    try:
+        cont = Contest.query.get(cid)
+        if cont is None: raise Exception("contest not found.")
+        if cont.private == True:
+            contestants = map(int, cont.contestants.split('|'))
+            if g.user.is_anonymous() == True:
+                raise Exception("This contest is private. Please login first.")
+            if g.user.id not in contestants:
+                raise Exception("This contest is private and you have not been invited.")
+        problems = map(int,cont.problems.split("|"))
+        sql = ""
+        for x in problems:
+            if sql != "": sql = sql + " or "
+            sql = sql + "problem_id=%d" % x
+        if sql == "": raise Exception("no problems.")
+        data = Submission.query.from_statement("SELECT * FROM submission WHERE %s order by id desc" % sql).all()
+        objects_list = {}
+        for row in data:
+            if int(row.problem_id) not in problems:
+                continue
+            if objects_list.get(row.user_id) is None:
+                d = collections.OrderedDict()
+                d['username'] = row.user.username
+                d['problems'] = collections.OrderedDict()
+                d['accepted'] = 0
+                for p in problems:
+                    d['problems'][p] = {"accepted": False, "attempt":0}
+                objects_list[row.user_id] = d
+            else:
+                d = objects_list.get(row.user_id)
+
+            if d['problems'][row.problem_id]['accepted'] == True:
+                continue
+            if row.result == "Accepted":
+                d['problems'][row.problem_id]['accepted'] = True
+                d['problems'][row.problem_id]['accepted_time'] = "%.2d:%.2d:%.2d"%((row.submit_time - cont.start_time).total_seconds()/3600, ((row.submit_time - cont.start_time).seconds%3600)/60, (row.submit_time - cont.start_time).seconds%60)
+                continue
+            else:
+                d['problems'][row.problem_id]['attempt'] = 1 + d['problems'][row.problem_id]['attempt']
+                continue
+        for x in objects_list.values():
+            penalty = 0
+            for p in x['problems'].values():
+                if p['accepted'] == True:
+                    penalty = penalty + (60 * 20 * p['attempt']) + ((row.submit_time - cont.start_time).total_seconds())
+                    x['accepted'] = x['accepted'] + 1
+            x['penalty'] = "%.2d:%.2d:%.2d"%(penalty/3600, (penalty%3600)/60, penalty%60)
+
+        objects_list = sorted(objects_list.values(), cmp=lambda x,y: cmp(x['accepted'],y['accepted']) if cmp(x['accepted'],y['accepted'])!=0 else cmp(x['penalty'],y['penalty']),reverse=True)
+        tmp = objects_list[0]
+        rank = 1
+        for x in objects_list:
+            if not (x['accepted'] == tmp['accepted'] and x['penalty'] == tmp['penalty']):
+                rank = rank + 1
+            x['rank'] = rank
+        return render_template('contest_ranklist.html', 
+            contest = cont,
+            problems = problems,
+            contestants = objects_list,
+            site_name = app.config['SCPC_TS_SITE_NAME']
+            )
+    except Exception, e:
+        return render_template('exception.html', message = str(e))
 
    
 @app.route('/')

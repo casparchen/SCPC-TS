@@ -118,8 +118,7 @@
                                                     </table>
                                                 </div>
                                                 <div class="col-md-7" style="padding-top:10px;">
-                                                    <p>欢迎各位参加！</p>
-                                                    <p style="color:#2727b9">{{description}}</p>
+                                                    {{description|safe}}
                                                 </div>
                                             </div>
                                         </div>
@@ -129,17 +128,21 @@
                                                 <tr style="background-color:#43a5ad;color:white">
 													<td>ID</td>
                                                     <td>Title</td>
-                                                    <td width="15%">Result</td>
+                                                    <td width="15%">Solved?</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
 												{%  for  num in number_list %}
                                                 <tr>
-                                                    <td>{{idlist[num] }}</td>
+                                                    <td>{{idlist[num]}}</td>
 													<td>
-                                                        <a href="problem/{{num}}">{{problems[num].title}}</a>
+                                                        <a href="problem/{{idlist[num]}}">{{problems[num].title}}</a>
                                                     </td>
-                                                    <td>Accepted</td>
+                                                    <td>
+                                                        {% if solved[num] == True%}
+                                                        YES
+                                                        {% endif %}
+                                                    </td>
                                                 </tr>
                                                 {%  endfor %}
                                             </tbody>

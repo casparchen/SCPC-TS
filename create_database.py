@@ -28,7 +28,11 @@ for i in range(20):
 
 for i in range(20):
     db.session.add(users[i])
-chenyi = User('admin', '123456', 'chen_swust@foxmail.com|1ff531004d5ac7d9127a7ba9170ec323', 'scpc_oj_username', datetime.now())
+password = u'123456'
+password_hash = md5()
+password_hash.update(password)
+password_hash = password_hash.hexdigest()
+chenyi = User('admin', password_hash, 'chen_swust@foxmail.com|1ff531004d5ac7d9127a7ba9170ec323', 'scpc_oj_username', datetime.now())
 chenyi.group = "admin|user|manage user|manage problem|manage contest|manage news"
 db.session.add(chenyi)
 

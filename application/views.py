@@ -87,13 +87,18 @@ def login(action):
                             db.session.commit()
                         u = u1
                 else:
-                    u = User.query.filter_by(username=form.username.data, password=form.password.data).first()
+                    password = form.password.data
+                    password_hash = md5()
+                    password_hash.update(password)
+                    password_hash = password_hash.hexdigest()
+                    u = User.query.filter_by(username=form.username.data, password=password_hash).first()
                 if u is not None:
                     login_user(u)
                     return json.dumps({"result" : "ok", "username" : g.user.username})
         except Exception, e:
+            raise e
             db.session.rollback()
-            return json.dumps({"result" : "failed"})
+        return json.dumps({"result" : "failed"})
         
     elif action == "logout":
         if g.user is not None and g.user.is_authenticated():
@@ -362,6 +367,7 @@ def contest(cid=1):
                     contestants = map(int, cont.contestants.split('|'))
                 if g.user.is_anonymous() == True:
                     raise Exception("This contest is private. Please login first.")
+                
                 if g.user.id not in contestants:
                     raise Exception("This contest is private and you have not been invited.")
             problem_list=[]
@@ -375,7 +381,7 @@ def contest(cid=1):
             solved=[]
             for item in problem_list:
                 problems.append(Problem.query.get(item))
-                user_id = -1 if g.user is None else g.user.id
+                user_id = -1 if g.user.is_anonymous() else g.user.id
                 if int(db.session.execute("SELECT COUNT(*) FROM submission WHERE problem_id = %d and user_id=%d and result='Accepted'"%(item, user_id)).first()[0]) > 0:
                     solved.append(True)
                 else:
@@ -524,7 +530,7 @@ def contest_ranklist(cid):
                     d['problems'] = collections.OrderedDict()
                     d['accepted'] = 0
                     for p in problems:
-                        d['problems'][p] = {"accepted": False, "attempt":0}
+                        d['problems'][p] = {"accepted": False, "attempt":0, "accepted_time": 0}
                     objects_list[row.user_id] = d
                 else:
                     d = objects_list.get(row.user_id)
@@ -533,7 +539,7 @@ def contest_ranklist(cid):
                     continue
                 if row.result == "Accepted":
                     d['problems'][row.problem_id]['accepted'] = True
-                    d['problems'][row.problem_id]['accepted_time'] = "%.2d:%.2d:%.2d"%((row.submit_time - cont.start_time).total_seconds()/3600, ((row.submit_time - cont.start_time).seconds%3600)/60, (row.submit_time - cont.start_time).seconds%60)
+                    d['problems'][row.problem_id]['accepted_time'] = (row.submit_time-cont.start_time).total_seconds()
                     continue
                 else:
                     d['problems'][row.problem_id]['attempt'] = 1 + d['problems'][row.problem_id]['attempt']
@@ -542,7 +548,8 @@ def contest_ranklist(cid):
                 penalty = 0
                 for p in x['problems'].values():
                     if p['accepted'] == True:
-                        penalty = penalty + (60 * 20 * p['attempt']) + ((row.submit_time - cont.start_time).total_seconds())
+                        penalty = penalty + (60 * 20 * p['attempt']) + p['accepted_time']
+                        p['accepted_time'] = "%.2d:%.2d:%.2d"%(p['accepted_time']/3600, (p['accepted_time']%3600)/60, p['accepted_time']%60)
                         x['accepted'] = x['accepted'] + 1
                 x['penalty'] = "%.2d:%.2d:%.2d"%(penalty/3600, (penalty%3600)/60, penalty%60)
 

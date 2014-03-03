@@ -7,7 +7,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(64), index = True, unique = True, nullable = False)
     password = db.Column(db.String(64), nullable = False)
-    email = db.Column(db.String(128), unique = True, nullable = False)
+    email = db.Column(db.String(128), nullable = False)
     scpc_oj_username = db.Column(db.String(128), unique = True)
     last_login_time = db.Column(db.DateTime)
     group = db.Column(db.Text, default='user')
@@ -34,7 +34,7 @@ class User(db.Model):
             return False
 
 
-    def __init__(self, username="", password="", email="", scpc_oj_username="", last_login_time=datetime.utcnow()):
+    def __init__(self, username="", password="", email="", scpc_oj_username="", last_login_time=datetime.now()):
         self.username = username
         self.password = password
         self.email = email
@@ -52,7 +52,7 @@ class News(db.Model):
     content = db.Column(db.Text)
 
 
-    def __init__(self, publish_time=datetime.utcnow(), title="", content=""):
+    def __init__(self, publish_time=datetime.now(), title="", content=""):
         self.publish_time = publish_time
         self.title = title
         self.content = content
@@ -102,11 +102,11 @@ class Contest(db.Model):
     description=db.Column(db.Text)
     start_time=db.Column(db.DateTime,nullable=False)
     end_time=db.Column(db.DateTime,nullable=False)
-    problems=db.Column(db.Text)
+    problems=db.Column(db.Text,default="")
     private=db.Column(db.Boolean,nullable=False)
     contestants=db.Column(db.Text)
     ranklist=db.Column(db.Text)
-    def __init__(self,title="",description="",start_time=datetime.utcnow(),end_time=datetime.utcnow(),problems="",private=False,contestants="",ranklist=""):
+    def __init__(self,title="",description="",start_time=datetime.now(),end_time=datetime.now(),problems="",private=False,contestants="",ranklist=""):
         self.title=title
         self.description=description
         self.start_time=start_time

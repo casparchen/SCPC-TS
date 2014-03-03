@@ -13,28 +13,37 @@ import string
 import re 
 import time
 import sys
+import json
 from datetime import datetime
-reload(sys)
-sys.setdefaultencoding('gb2312')
-problem_url = "http://poj.org/problem?id=" + str(1061)
-response = urllib2.urlopen(problem_url)
-text  = response.read()
-match = re.compile("<div style='position: absolute.*?<div class=\"ptt\".*?>(青蛙的约会)<\/div>.*?Description.*?<div class=\"ptx\".*?>(.*?)<\/div>.*?Input.*?<div class=\"ptx\".*?>(.*?)<\/div>.*?Output.*?<div class=\"ptx\".*?>(.*?)<\/div>.*?Sample Input.*?<pre.*?>(.*?)<\/pre>.*?Sample Output.*?<pre.*?>(.*?)<\/pre>", re.M | re.S)
-last_sub = match.findall(text)
-print last_sub
-"""
-problem = {}
-problem['title'] = last_sub[0][0]
-problem['original_oj_id'] = hdoj_id
-problem['time_limit'] = "1S"
-problem['memory_limit'] = "65535K"
-problem['description'] = last_sub[0][2]
-problem['input'] = last_sub[0][3]
-problem['output'] = last_sub[0][4]
-problem['sample_input'] = last_sub[0][5]
-problem['sample_output'] = last_sub[0][6]
-problem['hint'] = ""
-problem['sample_input'] = problem['sample_input'].replace('\r\n', '<br/>')
-problem['sample_output'] = problem['sample_output'].replace('\r\n', '<br/>')
-return self.render('admin/problem_form.html', problem=problem)
-"""
+login_url = "http://acm.swust.edu.cn:8080/"
+login_action = "http://acm.swust.edu.cn:8080/user/ajaxlogin/"
+print login_action
+#cookie处理器
+cookieJar = cookielib.LWPCookieJar()  
+cookie_support = urllib2.HTTPCookieProcessor(cookieJar)  
+opener = urllib2.build_opener(cookie_support, urllib2.HTTPHandler)  
+urllib2.install_opener(opener)  
+
+#打开登录主页面
+text = urllib2.urlopen(login_url).read()
+match = re.compile('action=\"\/user\/login/\".*?csrfmiddlewaretoken.*?value.*?\'(.*?)\'', re.M | re.S)
+token = match.findall(text)[0]
+print token
+
+#header  
+headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:14.0) Gecko/20100101 Firefox/14.0.1', 'Referer' : '******'}  
+
+#Post数据 
+postData = {'username' : 'chenyi', 'password' : '19890113', 'csrfmiddlewaretoken' : token}   
+postData = urllib.urlencode(postData)  
+
+# Login
+request = urllib2.Request(login_action, postData, headers)  
+response = urllib2.urlopen(request) 
+text= response.read()
+print text
+email_url = "http://acm.swust.edu.cn:8080/user/juserinfo/?operation=profile"
+request = urllib2.Request(email_url, None, headers)
+response = urllib2.urlopen(request)
+text = response.read() 
+print json.loads(text)['email']

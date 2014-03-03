@@ -19,12 +19,20 @@ for i in range(20):
     email_hash = md5()
     email_hash.update(email)
     email_hash = email_hash.hexdigest()
-    u = User(u'user' + str(i),u'password' + str(i),"%s|%s"%(email,email_hash),u'20081816' + str(i), datetime.now())
+    password = u'password' + str(i)
+    password_hash = md5()
+    password_hash.update(password)
+    password_hash = password_hash.hexdigest()
+    u = User(u'user' + str(i),password_hash,"%s|%s"%(email,email_hash),None, datetime.now())
     users.append(u)
 
 for i in range(20):
     db.session.add(users[i])
-chenyi = User('admin', '123456', 'chen_swust@foxmail.com|1ff531004d5ac7d9127a7ba9170ec323', 'scpc_oj_username', datetime.now())
+password = u'123456'
+password_hash = md5()
+password_hash.update(password)
+password_hash = password_hash.hexdigest()
+chenyi = User('admin', password_hash, 'chen_swust@foxmail.com|1ff531004d5ac7d9127a7ba9170ec323', 'scpc_oj_username', datetime.now())
 chenyi.group = "admin|user|manage user|manage problem|manage contest|manage news"
 db.session.add(chenyi)
 
@@ -45,7 +53,7 @@ for i in range(1):
 print "adding Contests"
 p1 = None
 for i in range(11):
-    p1 = Contest(u"contests" + str(i), u"1000", datetime.utcnow(), datetime.utcnow(),"1|2|3",False, u"a|b|c|d|e", u"description")
+    p1 = Contest(u"contests" + str(i), u"1000", datetime.now(), datetime.now(),"1|2|3",False, u"a|b|c|d|e", u"description")
     db.session.add(p1)
 
 

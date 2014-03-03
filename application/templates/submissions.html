@@ -267,6 +267,20 @@
                 else{
                     $($(this).children()[3]).css('color', 'rgb(0, 128, 0)');
                 }
+                
+            });
+
+            // add code link
+            $.getJSON("/user/login_status", function(data){
+                if(data.login_status == true){
+                    var SCPC_username = data.username;
+                    $("#submission_table_body").children().each(function(){
+                        var username = $($(this).children()[2]).text();
+                        if(username == SCPC_username){
+                            $($(this).children()[6]).html("<a style='color:red;' href='/code/"+$($(this).children()[0]).text() + "'>" + $($(this).children()[6]).text() +"</a>");
+                        }
+                    });
+                }
             });
         
         

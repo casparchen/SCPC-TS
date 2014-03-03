@@ -279,6 +279,8 @@ def contests(page=0):
 def contest(page=1):
 	if type(page)==int:
 		if page<1:page=1
+		if page>Contest.query.count():
+			return redirect(url_for('index'))
 		row=Contest.query.get(page)
 		problem_list=map(int,row.problems.split('|'))
 		idlist=[]

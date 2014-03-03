@@ -576,9 +576,27 @@ def contest_ranklist(cid):
 @cache.cached(timeout=5)
 def index():
     news_list = News.query.limit(8).all()
+    lenx=3
+    data = Submission.query.order_by(db.desc(Submission.id)).offset(0).limit(lenx).all()
+    status = []
+    for row in data:
+		d = collections.OrderedDict()
+		d['id'] = row.id
+		d['problem_id']=row.problem.id
+		d['problem_title'] = row.problem.title
+		d['username'] = row.user.username
+		d['result'] = row.result
+		d['memory_used'] = row.memory_used
+		d['time_used'] = row.time_used
+		d['compiler'] = row.compiler
+		d['code'] = len(row.code)
+		d['submit_time'] = row.submit_time
+		status.append(d)
     return render_template("index.html", 
         news_list = news_list,
-        site_name = app.config['SCPC_TS_SITE_NAME'])
+        site_name = app.config['SCPC_TS_SITE_NAME'],
+        status=status
+        )
 
 
 

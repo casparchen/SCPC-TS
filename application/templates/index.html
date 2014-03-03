@@ -170,26 +170,28 @@
                             <div class="col-md-12 visible-md visible-lg" id="timeline-widget">
                                 <input class="hidden search form-control" />
                                 <ul class="timeline-widget list">
+									
+                                    {%  for item in status %}
                                     <li class="media">
                                         <div class="timeline-icon">
-                                            <span class="glyphicons glyphicons-cloud-download text-red"></span>
+											{%  if item.result=='Accepted' %}
+                                            <span class="glyphicons glyphicons-circle_ok text-red"></span>
+                                            {%  else %}
+                                            <span class="glyphicons glyphicons-circle_info text-green"></span>
+                                            {%  endif %}
                                         </div>
                                         <div class="media-body">
-                                            <b>ChenYi</b>&nbsp;Has Solved Problem
-                                            <b>1001</b>
-                                            <span class="date">- 2 hours ago</span>
+                                            <b>{{item.username}}</b>&nbsp;
+                                            {%  if item.result=='Accepted' %}
+                                             Has Solved
+                                            {%  else %}
+                                            Tried
+                                            {%  endif %}
+                                            <a href='/problem/{{item.problem_id}}/'><b> {{item.problem_title}} </b></a>
+                                            <span class="scpc_time" title="{{item.submit_time}}">{{item.submit_time}}</span>
                                         </div>
                                     </li>
-                                    <li class="media">
-                                        <div class="timeline-icon">
-                                            <span class="glyphicons glyphicons-cloud-download text-alert"></span>
-                                        </div>
-                                        <div class="media-body">
-                                            <b>ChenYi</b>&nbsp;Tried Problem
-                                            <b>1001</b>
-                                            <span class="date">- 2 hours ago</span>
-                                        </div>
-                                    </li>
+                                    {%  endfor %}  
                                 </ul>
                             </div>
                         </div>
@@ -232,7 +234,7 @@
     <script type="text/javascript" src="/static/vendor/plugins/datatables/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="/static/vendor/plugins/calendar/fullcalendar.min.js"></script>
     <script type="text/javascript" src='http://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.0.1/ckeditor.js'></script>
-
+	<script src="/static/vendor/jquery.timeago.js" type="text/javascript"></script>
 
     <!-- Plugins -->
     <script type="text/javascript" src="/static/vendor/plugins/calendar/gcal.js"></script>
@@ -252,9 +254,8 @@
         	  
         	// Init Theme Core 	  
         	Core.init();
-            
             SCPC();
-
+			$(".scpc_time").timeago();
         });
 
         // news window

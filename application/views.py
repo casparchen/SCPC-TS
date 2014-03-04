@@ -62,7 +62,7 @@ def before_request():
 def login(action):
     if action == "login_status":
         if g.user is not None and g.user.is_authenticated():
-            return json.dumps({"login_status" : True, "username" : g.user.username, "email_hash" : g.user.email.split('|')[1]})
+            return json.dumps({"login_status" : True, "username" : g.user.username, "email_hash" : g.user.email.split('|')[1], "admin":g.user.is_admin()})
         else:
             return json.dumps({"login_status" : False})
     elif action == "login_form":
@@ -214,45 +214,58 @@ def problem(id):
 @app.route('/submissions/<int:page>')
 @cache.cached(timeout=3)
 def submissions_1(page):
-    return submissions(page, None, None, None)
+    return submissions(page, 'None', 0, 'None')
 
 @app.route('/submissions/<string:user>:<int:problem>:<string:result>/<int:page>/')
 @cache.cached(timeout=3)
-def submissions(page=1, user=None, problem=None, result=None):
+def submissions(page=1, user="None", problem=0, result="None"):
     if type(page) == int:
-        page = 0 if page<1 else page-1
-        rules=""
-        if(user!=None):
-			if(rules!=""): rules+=" or "
-#			rules+="Submission_user_username="+'"'+user+'"'
-        if(problem!=None):
-			if(rules!=""):rules+=" or "
-	#		rules+="problem_title="+str(problem)
-        if(result!=None):
-            if(rules!=""): rules+=" or "
-            rules+="result="+'"'+result+'"'
-  #      return rules
-        data = Submission.query.filter(rules).order_by(db.desc(Submission.id)).offset(page*10).limit(10).all()
-        objects_list = []
-        for row in data:
-            d = collections.OrderedDict()
-            d['id'] = row.id
-            d['problem_title'] = row.problem.title
-            d['username'] = row.user.username
-            d['result'] = row.result
-            d['memory_used'] = row.memory_used
-            d['time_used'] = row.time_used
-            d['compiler'] = row.compiler
-            d['code'] = len(row.code)
-            d['submit_time'] = row.submit_time
-            objects_list.append(d)
-        return render_template('submissions.html', 
-            submissions = objects_list,
-            total_page = int(math.ceil(Submission.query.count()/10.0)),
-            current_page = page + 1,
-            site_name = app.config['SCPC_TS_SITE_NAME']
-            )
-    return redirect(url_for('index'))
+        try:
+            page = 0 if page<1 else page-1
+            sql=""
+            if(user!="None"):
+                user = User.query.filter(User.username==user).first()
+                if user is None: raise Exception("User not found.")
+                sql = "user_id=%d" % user.id
+            if(problem!=0):
+                problem = Problem.query.get(problem)
+                if problem is None: raise Exception("Problem not found.")
+                if sql != "": sql = sql + " and "
+                sql = sql + "problem_id=%d" % problem.id
+            if(result!="None"):
+                if sql != "": sql = sql + " and "
+                if result == "Accepted" or result == "Wrong Answer":
+                    sql = sql + "result = '%s'" % result
+                elif result == "Others":
+                    sql = sql + "result != 'Accepted' and result != 'Wrong Answer'"
+                else:
+                    raise Exception("Result filter error.")
+            if sql != "": sql = "WHERE " + sql
+            print "SELECT * FROM submission %s ORDER BY id desc LIMIT %d,%d" % (sql,page*10,10)
+            data = Submission.query.from_statement("SELECT * FROM submission %s ORDER BY id desc LIMIT %d,%d" % (sql,page*10,10) ).all()
+            objects_list = []
+            for row in data:
+                d = collections.OrderedDict()
+                d['id'] = row.id
+                d['problem_title'] = row.problem.title
+                d['username'] = row.user.username
+                d['result'] = row.result
+                d['memory_used'] = row.memory_used
+                d['time_used'] = row.time_used
+                d['compiler'] = row.compiler
+                d['code'] = len(row.code)
+                d['submit_time'] = row.submit_time
+                objects_list.append(d)
+            total = int(db.session.execute("SELECT COUNT(*) FROM submission %s"%sql).first()[0])
+            return render_template('submissions.html', 
+                submissions = objects_list,
+                total_page = int(math.ceil(total/10.0)),
+                current_page = page + 1,
+                site_name = app.config['SCPC_TS_SITE_NAME']
+                )
+        except Exception, e:
+            return render_template('exception.html', message=str(e))
+        
 
 @app.route('/road/')
 def road():

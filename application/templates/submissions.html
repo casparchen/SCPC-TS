@@ -260,7 +260,12 @@
                 },
                 onPageChanged: function(e,oldPage,newPage){
                     if({{current_page}} != newPage){
-                        window.location.href = '../' + newPage;
+                        if(window.location.pathname == "/submissions/"){
+                            window.location.href = '/submissions/' + newPage;
+                        }else{
+                            window.location.href = '../' + newPage;
+                        }
+                        
                     }
                     //alert();
                     //$('#paginator-content').text("Current page changed, old: "+oldPage+" new: "+newPage);
@@ -293,7 +298,7 @@
                     var SCPC_username = data.username;
                     $("#submission_table_body").children().each(function(){
                         var username = $($(this).children()[2]).text();
-                        if(username == SCPC_username){
+                        if(username == SCPC_username || data.admin == true){
                             $($(this).children()[6]).html("<a style='color:red;' href='/code/"+$($(this).children()[0]).text() + "'>" + $($(this).children()[6]).text() +"</a>");
                         }
                     });

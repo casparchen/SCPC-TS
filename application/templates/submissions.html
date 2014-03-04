@@ -133,6 +133,23 @@
                 <hr class="short" />
                 <div class="row">
                     <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>User: </label>
+                                <input type="text" id="flt-user" style="width:110px;">
+                                <label>Problem ID: </label>
+                                <input type="text" id="flt-problem" style="width:110px;">
+                                <label>Result: </label>
+                                <select id="flt-result" class="form-control" style="display: inline-block;width:150px;height:26px;margin-bottom: 3px;">
+                                    <option>Select One</option>
+                                    <option>Accepted</option>
+                                    <option>Wrong Answer</option>
+                                    <option>Others</option>
+                                </select>
+                                <button id="btn-filter" type="button" class="btn btn-light5 btn-gradient" style="padding-top: 3px;padding-bottom: 4px;height: 28px;margin-bottom: 4px;width: 76px;">Filter</button>
+                            </div>
+                            
+                        </div>
                         <div class="panel">
                             <div class="panel-body">
                                 <table class="table table-hover table-striped1 text-center" id="submission_table">
@@ -243,7 +260,7 @@
                 },
                 onPageChanged: function(e,oldPage,newPage){
                     if({{current_page}} != newPage){
-                        window.location.href = '/submissions/' + newPage;
+                        window.location.href = '../' + newPage;
                     }
                     //alert();
                     //$('#paginator-content').text("Current page changed, old: "+oldPage+" new: "+newPage);
@@ -281,6 +298,17 @@
                         }
                     });
                 }
+            });
+
+            // filter
+            $('#btn-filter').click(function(){
+                username = $('#flt-user').val();
+                problem = $('#flt-problem').val();
+                result = $('#flt-result').val();
+                if(username == ""){username = "None";} 
+                if(problem == ""){problem = 0;} 
+                if(result == "Select One"){result = "None";} 
+                window.location.href = "/submissions/" + username + ":" + problem + ":" + result + "/1";
             });
         
         

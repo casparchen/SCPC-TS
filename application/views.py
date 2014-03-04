@@ -214,12 +214,23 @@ def problem(id):
 def submissions_1(page):
     return submissions(page, None, None, None)
 
-@app.route('/submissions/<int:page>:<user>:<int:problem>:<result>')
+@app.route('/submissions/<string:user>:<int:problem>:<string:result>/<int:page>/')
 @cache.cached(timeout=3)
-def submissions(page, user, problem, result):
+def submissions(page=1, user=None, problem=None, result=None):
     if type(page) == int:
         page = 0 if page<1 else page-1
-        data = Submission.query.order_by(db.desc(Submission.id)).offset(page*10).limit(10).all()
+        rules=""
+        if(user!=None):
+			if(rules!=""): rules+=" or "
+#			rules+="Submission_user_username="+'"'+user+'"'
+        if(problem!=None):
+			if(rules!=""):rules+=" or "
+	#		rules+="problem_title="+str(problem)
+        if(result!=None):
+            if(rules!=""): rules+=" or "
+            rules+="result="+'"'+result+'"'
+  #      return rules
+        data = Submission.query.filter(rules).order_by(db.desc(Submission.id)).offset(page*10).limit(10).all()
         objects_list = []
         for row in data:
             d = collections.OrderedDict()

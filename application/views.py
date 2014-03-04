@@ -554,7 +554,7 @@ def contest_ranklist(cid):
                         x['accepted'] = x['accepted'] + 1
                 x['penalty'] = "%.2d:%.2d:%.2d"%(penalty/3600, (penalty%3600)/60, penalty%60)
 
-            objects_list = sorted(objects_list.values(), cmp=lambda x,y: cmp(x['accepted'],y['accepted']) if cmp(x['accepted'],y['accepted'])!=0 else cmp(x['penalty'],y['penalty']),reverse=True)
+            objects_list = sorted(objects_list.values(), cmp=lambda x,y: cmp(x['accepted'],y['accepted']) if cmp(x['accepted'],y['accepted'])!=0 else cmp(y['penalty'],x['penalty']),reverse=True)
             tmp = objects_list[0]
             rank = 1
             for x in objects_list:
@@ -569,6 +569,24 @@ def contest_ranklist(cid):
             )
     except Exception, e:
         return render_template('exception.html', message = str(e))
+
+@app.route('/code/<int:id>/')
+@login_required
+@cache.cached(timeout=5)
+def showcode(id):
+    if type(id) == int:
+        try:
+            id = 1 if id < 1 else id
+            p = Submission.query.get(id)
+            if p is None: raise Exception('Code not found.')
+            if g.user.is_admin() == False:
+                if p.user_id != g.user.id: raise Exception('You are not the author of the code.')
+            return render_template('code.html',
+                site_name = app.config['SCPC_TS_SITE_NAME'],
+                submission = p
+                )
+        except Exception, e:
+            return render_template('exception.html', message = str(e))
 
    
 @app.route('/')

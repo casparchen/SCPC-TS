@@ -17,6 +17,7 @@ if (current_height - 53 > current_main_height) {
     $('#content').css("height", current_height - 106);
     $('#content').css("min-height", current_height - 106);
 }
+var SCPC_username = "";
 
 var SCPC = function () {
     $.getJSON("/user/login_status", function(data){
@@ -55,6 +56,7 @@ var SCPC = function () {
             });
         }
         else{
+            SCPC_username = data.username;
             var email_hash = data.email_hash;
             $('#user-area').append("<div class=\"btn-group user-menu\" id=\"menu_user\"><button type=\"button\" class=\"btn btn-default btn-gradient btn-sm dropdown-toggle\" data-toggle=\"dropdown\"> <span class=\"glyphicons glyphicons-user\"></span> <b id='menu-user-username'></b> </button><button type=\"button\" class=\"btn btn-default btn-gradient btn-sm dropdown-toggle padding-none\" data-toggle=\"dropdown\"> <img src=\"http://gravatar.duoshuo.com/avatar/" + email_hash +"?d=mm\" alt=\"user avatar\" width=\"28\" height=\"28\"> </button><ul class=\"dropdown-menu checkbox-persist animated-short animated flipInY\" role=\"menu\"><li class=\"menu-arrow\"><div class=\"menu-arrow-up\"></div></li><li class=\"dropdown-header\">Your Account <span class=\"pull-right glyphicons glyphicons-user\"></span></li><li><ul class=\"dropdown-items\"><li><div class=\"item-icon\"><i class=\"fa fa-envelope-o\"></i> </div><a class=\"item-message\" href=\"setting\">Setting</a> </li><li><div class=\"item-icon\"><i class=\"fa fa-envelope-o\"></i> </div><a class=\"item-message\" id='btn-logout' href=\"\">Logout</a> </li></li></ul></li></ul></div>");
             $('#menu-user-username').text(data.username);

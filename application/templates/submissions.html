@@ -144,9 +144,9 @@
                                             <td width="15%">Result</td>
                                             <td width="10%">Memory</td>
                                             <td width="9%">Time</td>
-                                            <td width="7%">Compiler</td>
-                                            <td width="7%">Length</td>
-                                            <td width="17%">Submit Time</td>
+                                            <td width="6%">Compiler</td>
+                                            <td width="6%">Length</td>
+                                            <td width="19%">Submit Time</td>
                                         </tr>
                                     </thead>
                                     <tbody id="submission_table_body">
@@ -206,7 +206,6 @@
     <script type="text/javascript" src="/static/vendor/plugins/datatables/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="/static/vendor/plugins/calendar/fullcalendar.min.js"></script>
 
-
     <!-- Plugins -->
     <script type="text/javascript" src="/static/vendor/plugins/calendar/gcal.js"></script>
     <!-- Calendar Addon -->
@@ -227,7 +226,7 @@
         	// Init Theme Core 	  
         	Core.init();
             SCPC();
-              
+
             var options = {
                 currentPage: {{current_page}},
                 totalPages: {{total_page}},
@@ -267,6 +266,20 @@
                 }
                 else{
                     $($(this).children()[3]).css('color', 'rgb(0, 128, 0)');
+                }
+                
+            });
+
+            // add code link
+            $.getJSON("/user/login_status", function(data){
+                if(data.login_status == true){
+                    var SCPC_username = data.username;
+                    $("#submission_table_body").children().each(function(){
+                        var username = $($(this).children()[2]).text();
+                        if(username == SCPC_username){
+                            $($(this).children()[6]).html("<a style='color:red;' href='/code/"+$($(this).children()[0]).text() + "'>" + $($(this).children()[6]).text() +"</a>");
+                        }
+                    });
                 }
             });
         

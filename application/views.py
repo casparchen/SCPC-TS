@@ -137,17 +137,22 @@ def submit():
             problem = Problem.query.get(problem)
             if problem is None:
                 raise Exception("Problem not found.")
-            if problem.owner_contest_id != None:
-                cont = Contest.query.get(problem.owner_contest_id)
+            if 0 != int(request.form['contest']):
+                cont = Contest.query.get(int(request.form['contest']))
                 if cont is None: raise Exception("Contest not found.")
-                if not (cont.start_time < datetime.now() < cont.end_time):
-                    raise Exception('Contest has not begun or had already ended.')
-                if cont.private == True:
-                    contestants = []
-                    if cont.contestants is not None and cont.contestants != "":
-                        contestants = map(int, cont.contestants.split('|'))
-                    if g.user.id not in contestants:
-                        raise Exception("This contest is private and you have not been invited.")
+                if problem.owner_contest_id != cont.id:
+                    raise Exception("Problem does not belong to the contest.")
+                if datetime.now() < cont.start_time: raise Exception("Contest has not begun.")
+                if datetime.now() > cont.end_time: raise Exception("Contest had ended.")
+                if cont.start_time < datetime.now() < cont.end_time:
+                    if cont.private == True:
+                        contestants = []
+                        if cont.contestants is not None and cont.contestants != "":
+                            contestants = map(int, cont.contestants.split('|'))
+                        if g.user.id not in contestants:
+                            raise Exception("This contest is private and you have not been invited.")
+            if problem.owner_contest_id != None and 0 == request.form['contest']:
+                raise Exception("This problem belongs to a contest. Please submit in the contest page.")    
             smt = Submission(user, problem, datetime.now(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj, problem.original_oj_id)
             db.session.add(smt)
             db.session.commit()
@@ -241,7 +246,6 @@ def submissions(page=1, user="None", problem=0, result="None"):
                 else:
                     raise Exception("Result filter error.")
             if sql != "": sql = "WHERE " + sql
-            print "SELECT * FROM submission %s ORDER BY id desc LIMIT %d,%d" % (sql,page*10,10)
             data = Submission.query.from_statement("SELECT * FROM submission %s ORDER BY id desc LIMIT %d,%d" % (sql,page*10,10) ).all()
             objects_list = []
             for row in data:
@@ -461,7 +465,7 @@ def contest_submission(id, page):
                 if sql != "": sql = sql + " or "
                 sql = sql + "problem_id=%d" % x
             if sql == "": raise Exception("no problems.")
-            data = Submission.query.from_statement("SELECT * FROM submission WHERE %s order by id desc limit %d,%d" % (sql, page*10, 10)).all()
+            data = Submission.query.from_statement("SELECT * FROM submission WHERE (%s) and submit_time >= '%s' and submit_time <= '%s' order by id desc limit %d,%d" % (sql, cont.start_time, cont.end_time, page*10, 10)).all()
             objects_list = []
             if data != []:
                 for row in data:
@@ -508,7 +512,7 @@ def contest_problem(cid, pid):
             problems=map(int,cont.problems.split('|'))
         if len(pid) == 1: 
             pid = ord(pid) - ord('A')
-            if not 0<=pid<=len(problems): raise Exception("problem not found.")
+            if not 0<=pid<len(problems): raise Exception("problem not found.")
             pid = problems[pid]
         else:
             pid = int(x)
@@ -545,7 +549,7 @@ def contest_ranklist(cid):
             if sql != "": sql = sql + " or "
             sql = sql + "problem_id=%d" % x
         if sql == "": raise Exception("no problems.")
-        data = Submission.query.from_statement("SELECT * FROM submission WHERE %s order by id" % sql).all()
+        data = Submission.query.from_statement("SELECT * FROM submission WHERE (%s) and submit_time >= '%s' and submit_time <= '%s' order by id" % (sql, cont.start_time, cont.end_time)).all()
         objects_list = {}
         if data != []:
             for row in data:

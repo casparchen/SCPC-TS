@@ -270,7 +270,8 @@
                   data: {
                     code:$('#code_to_submit').val(),
                     problem_id:{{problem.id}},
-                    compiler:$('#selected_compiler').val()
+                    compiler:$('#selected_compiler').val(),
+                    contest:0
                   },
                   success: function(data){
                     data = $.parseJSON(data);

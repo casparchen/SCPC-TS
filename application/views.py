@@ -143,7 +143,9 @@ def submit():
                 if not (cont.start_time < datetime.now() < cont.end_time):
                     raise Exception('Contest has not begun or had already ended.')
                 if cont.private == True:
-                    contestants = map(int, cont.contestants.split('|'))
+                    contestants = []
+                    if cont.contestants is not None and cont.contestants != "":
+                        contestants = map(int, cont.contestants.split('|'))
                     if g.user.id not in contestants:
                         raise Exception("This contest is private and you have not been invited.")
             smt = Submission(user, problem, datetime.now(), request.form['compiler'], request.form['code'], 'pending', "0K", "0MS", 0, problem.original_oj, problem.original_oj_id)
@@ -519,7 +521,7 @@ def contest_ranklist(cid):
             if sql != "": sql = sql + " or "
             sql = sql + "problem_id=%d" % x
         if sql == "": raise Exception("no problems.")
-        data = Submission.query.from_statement("SELECT * FROM submission WHERE %s order by id desc" % sql).all()
+        data = Submission.query.from_statement("SELECT * FROM submission WHERE %s order by id" % sql).all()
         objects_list = {}
         if data != []:
             for row in data:

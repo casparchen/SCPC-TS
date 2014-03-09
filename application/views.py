@@ -205,7 +205,7 @@ def problem(id):
             p = Problem.query.get(id)
             if p is None: raise Exception("problem not found.")
             if p.owner_contest_id is not None: 
-                raise Exception("problem not found!")
+                raise Exception("The problem belongs to a contest. View it in the contest problem page.!")
             return render_template('problem.html',
                 site_name = app.config['SCPC_TS_SITE_NAME'],
                 problem = p
@@ -216,7 +216,7 @@ def problem(id):
 
 
 @app.route('/submissions/', defaults={'page': 1})
-@app.route('/submissions/<int:page>')
+@app.route('/submissions/<int:page>/')
 @cache.cached(timeout=3)
 def submissions_1(page):
     return submissions(page, 'None', 0, 'None')
@@ -251,7 +251,7 @@ def submissions(page=1, user="None", problem=0, result="None"):
             for row in data:
                 d = collections.OrderedDict()
                 d['id'] = row.id
-                d['problem_title'] = row.problem.title
+                d['problem_title'] = row.problem_id
                 d['username'] = row.user.username
                 d['result'] = row.result
                 d['memory_used'] = row.memory_used
@@ -624,7 +624,7 @@ def showcode(id):
 @cache.cached(timeout=5)
 def index():
     news_list = News.query.limit(8).all()
-    lenx=3
+    lenx=6
     data = Submission.query.order_by(db.desc(Submission.id)).offset(0).limit(lenx).all()
     status = []
     for row in data:

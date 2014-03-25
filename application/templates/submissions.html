@@ -97,7 +97,7 @@
         <!-- End: Sidebar -->
         <!-- Start: Content -->
         <section id="content">
-            <div class="container">
+            <div class="container" style="padding-top: 15px;">
                 <div class="row">
                     <div class="col-md-12">
                         <h1>Submission</h1>
@@ -122,9 +122,9 @@
                                 <button id="btn-filter" type="button" class="btn btn-light5 btn-gradient" style="padding-top: 3px;padding-bottom: 4px;height: 28px;margin-bottom: 4px;width: 76px;">Filter</button>
                             </div>
                         </div>
-                        <div class="panel">
+                        <div class="panel" style="margin-bottom: 0px">
                             <div class="panel-body">
-                                <table class="table table-hover table-striped1 text-center" id="submission_table">
+                                <table class="table table-hover table-striped1 text-center table-striped-color-green" id="submission_table">
                                     <thead>
                                         <tr>
                                             <td width="6%">ID</td>
@@ -229,7 +229,9 @@
                 }
                 var username = $($(this).children()[2]).text();
                 if(username.indexOf("_SCPC_")>=0){
-                    username = username.replace('_SCPC_', "<img src='http://mrchenyi.com:5000/static/img/logos/scpc-small.png' style='height: 14px;'>&nbsp;");
+                    username = username.replace('_SCPC_','');
+                    username = "<img src='/static/img/logos/scpc-small.png' style='height: 14px;margin-top: 2px;vertical-align:top;'>&nbsp;<span>" + username + "</span>"
+                    //username = username.replace('_SCPC_', "");
                     $($(this).children()[2]).html(username);
                 }
                 
@@ -238,10 +240,13 @@
             $.getJSON("/user/login_status", function(data){
                 if(data.login_status == true){
                     var SCPC_username = data.username;
+                    if(SCPC_username.indexOf("_SCPC_")>=0){
+                        SCPC_username = SCPC_username.replace('_SCPC_','');
+                    }
                     $("#submission_table_body").children().each(function(){
-                        var username = $($(this).children()[2]).text();
+                        var username = $($($(this).children()[2]).children()[1]).text();
                         if(username == SCPC_username || data.admin == true){
-                            $($(this).children()[6]).html("<a style='color:red;' href='/code/"+$($(this).children()[0]).text() + "'>" + $($(this).children()[6]).text() +"</a>");
+                            $($(this).children()[6]).html("<a href='/code/"+$($(this).children()[0]).text() + "'>" + $($(this).children()[6]).text() +"</a>");
                         }
                     });
                 }

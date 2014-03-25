@@ -5,5 +5,5 @@ from wtforms.validators import Required
 class form_user_login(Form):
     username = TextField('username', validators = [Required()])
     password = TextField('password', validators = [Required()])
-    scpc_oj = BooleanField('scpc_oj', default = False)
+    scpc_oj = BooleanField('scpc_oj', default = True)
 

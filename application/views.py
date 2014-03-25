@@ -11,7 +11,9 @@ from datetime import datetime
 import urllib2,urllib 
 import cookielib,re
 from hashlib import md5
+import clean_xss
     
+
 
 def SCPC_LOGIN(username, password):
     login_url = "http://acm.swust.edu.cn:8080/"
@@ -72,6 +74,8 @@ def login(action):
         try:
             form = form_user_login()
             if form.validate_on_submit():
+                form.username.data = form.username.data.lower()
+                form.password.data = form.password.data.lower()
                 u = None
                 if form.scpc_oj.data == True:
                     result = SCPC_LOGIN(form.username.data, form.password.data)
@@ -229,8 +233,13 @@ def submissions(page=1, user="None", problem=0, result="None"):
             page = 0 if page<1 else page-1
             sql=""
             if(user!="None"):
-                user = User.query.filter(User.username==user).first()
-                if user is None: raise Exception("User not found.")
+                user1 = User.query.filter(User.username==user).first()
+                user2 = User.query.filter(User.scpc_oj_username==user).first()
+                if user1 is None and user2 is None: raise Exception("User not found.")
+                if user1 is not None: 
+                    user=user1
+                else: 
+                    user=user2
                 sql = "user_id=%d" % user.id
             if(problem!=0):
                 problem = Problem.query.get(problem)
@@ -339,7 +348,8 @@ def forum_submit():
                 if len(title) < 3: raise Exception("Title is too short. 3+ required.")
             user = g.user
             time_now = datetime.now()
-            pst = Forum(title, request.form['content'], time_now, father_node, user, None)
+            content = clean_xss.parsehtml(request.form['content'])
+            pst = Forum(title, content, time_now, father_node, user, None)
             db.session.add(pst)
             if father_node != 0:
                 father = Forum.query.get(father_node)
@@ -471,7 +481,7 @@ def contest_submission(id, page):
                 for row in data:
                     d = collections.OrderedDict()
                     d['id'] = row.id
-                    d['problem_title'] = row.problem.title
+                    d['problem_title'] = "<a href='/contest/%d/problem/%s'>%s</a>" %(cont.id, chr(ord('A') + problems.index(row.problem_id)), chr(ord('A') + problems.index(row.problem_id)))
                     d['username'] = row.user.username
                     d['result'] = row.result
                     d['memory_used'] = row.memory_used
@@ -618,6 +628,29 @@ def showcode(id):
         except Exception, e:
             return render_template('exception.html', message = str(e))
 
+@app.route('/contest/<int:cid>/code/<int:sid>/')
+@login_required
+@cache.cached(timeout=5)
+def showcode_contest(cid, sid):
+    try:
+        sid = 1 if sid < 1 else sid
+        cid = 1 if cid < 1 else cid
+        cont = Contest.query.get(cid)
+        if cont is None: raise Exception("Contest not found.")
+        p = Submission.query.get(sid)
+        if p is None: raise Exception('Code not found.')
+        if g.user.is_admin() == False:
+            if p.user_id != g.user.id: raise Exception('You are not the author of the code.')
+        return render_template('contest_code.html',
+            site_name = app.config['SCPC_TS_SITE_NAME'],
+            submission = p,
+            contest = cont
+            )
+    except Exception, e:
+        return render_template('exception.html', message = str(e))
+@app.route('/orca.txt')
+def orca():
+    return "3cf2d9137c049a63"
    
 @app.route('/')
 @app.route('/index')

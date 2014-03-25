@@ -2,6 +2,7 @@
 from application import admin, models, db
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
+from urlparse import urljoin
 import flask_login
 from flask import request
 import urllib2,re
@@ -172,6 +173,13 @@ class Add_HDOJ_Problem_View(BaseView):
             problem['hint'] = ""
             problem['sample_input'] = problem['sample_input'].replace('\r\n', '<br/>')
             problem['sample_output'] = problem['sample_output'].replace('\r\n', '<br/>')
+            for item in problem:
+                if type(problem[item]) != str: continue
+                match = re.compile('<img\s*?src\s*?=\s*?\'?\"?(.*?)\'?\"?\s*?>', re.M | re.S)
+                links = match.findall(problem[item])
+                for link in links:
+                    newUrl = urljoin("http://acm.hdu.edu.cn/", link)
+                    problem[item] = problem[item].replace(link, newUrl)
             return self.render('admin/problem_form.html', problem=problem,contests=conts)
         except Exception, e:
             return self.render('exception.html', message=str(e))
@@ -236,6 +244,13 @@ class Add_PKUOJ_Problem_View(BaseView):
             problem['hint'] = ""
             problem['sample_input'] = problem['sample_input'].replace('\r\n', '<br/>')
             problem['sample_output'] = problem['sample_output'].replace('\r\n', '<br/>')
+            for item in problem:
+                if type(problem[item]) != str: continue
+                match = re.compile('<img\s*?src\s*?=\s*?\'?\"?(.*?)\'?\"?\s*?>', re.M | re.S)
+                links = match.findall(problem[item])
+                for link in links:
+                    newUrl = urljoin("http://poj.org/", link)
+                    problem[item] = problem[item].replace(link, newUrl)
             return self.render('admin/problem_form.html', problem=problem, contests=conts)
         except Exception, e:
             return self.render('exception.html', message=str(e))

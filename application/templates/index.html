@@ -97,7 +97,7 @@
         <!-- End: Sidebar -->
         <!-- Start: Content -->
         <section id="content">
-            <div class="container">
+            <div class="container"  style="padding-top: 15px;">
                 <div class="row">
                     <div class="col-md-12">
                         <h1>Welcome to SCPC Training System II!</h1>
@@ -197,6 +197,17 @@
             SCPC();
 			$(".scpc_time").timeago();
         });
+
+        //replace _SCPC_
+        $(".media-body b").each(function(value){
+            var username = $(this).text();
+            if(username.indexOf("_SCPC_")>=0){
+                username = username.replace('_SCPC_', "<img src='/static/img/logos/scpc-small.png' style='height: 14px;margin-top: 2px;vertical-align:top;'>&nbsp;");
+                $(this).html(username);
+            }
+        });
+
+        
 
         // news window
         function open_news(id){

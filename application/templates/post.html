@@ -11,13 +11,14 @@
     <link rel="stylesheet" type="text/css" href="/static/fonts/glyphicons_pro/glyphicons.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/vendor/plugins/datatables/css/datatables.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/animate.css" />
-    <link rel="stylesheet" type="text/css" href="/static/vendor/editors/summernote/summernote.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/theme.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/pages.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/plugins.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/responsive.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/demo.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="/static/vendor/plugins/prettify/prettify.css" />
+
     <link rel="shortcut icon" href="/static/img/favicon.ico" />
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -108,7 +109,7 @@
                                         <tr>
                                             <td>
                                                 <h1>{{post.title}}</h1>
-                                                <strong>{{post.user.username}}</strong>
+                                                <strong class="SCPC_USER">{{post.user.username}}</strong>
                                                 <span style="color: #939191;">• {{post.last_update_time}}</span>
                                             </td>
                                             <td width="75px;" class="pull-right">
@@ -136,10 +137,10 @@
                                             <img src="http://gravatar.duoshuo.com/avatar/{{p.user.email.split("|")[1]}}?s=50&d=mm" class="avatar" border="0" align="default">
                                         </td>
                                         <td>
-                                            <p style="font-size: 15px;">{{p.user.username}}&nbsp;&nbsp;
+                                            <p class="SCPC_USER" style="font-size: 15px;">{{p.user.username}}&nbsp;&nbsp;
                                                 <span style="color: #939191;font-size:12px;">{{p.last_update_time}}</span>
                                             </p>
-                                            <div style='color:black;font-size:14px;'>{{p.content}}
+                                            <div style='color:black;font-size:14px;'>{{p.content|safe}}
                                             </div>
                                         </td>
                                     </tr>
@@ -170,18 +171,24 @@
     <script type="text/javascript" src="/static/vendor/jquery-ui.min.js"></script>
     <script type="text/javascript" src="/static/vendor/bootstrap.min.js"></script>
     <script type="text/javascript" src="/static/vendor/plugins/datatables/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="/static/vendor/editors/summernote/summernote.js"></script>
     <script type="text/javascript" src="/static/vendor/plugins/datatables/js/datatables.js"></script>
     <script type="text/javascript" src="/static/vendor/bootstrap/paginator/src/bootstrap-paginator.js"></script>
     <script type="text/javascript" src="/static/js/uniform.min.js"></script>
     <script type="text/javascript" src="/static/js/main.js"></script>
     <script type="text/javascript" src="/static/js/custom.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/static/vendor/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/static/vendor/ueditor/ueditor.all.min.js"> </script>
+    <script type="text/javascript" charset="utf-8" src="/static/vendor/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript" src="/static/vendor/plugins/prettify/prettify.min.js"></script>
+
     <script type="text/javascript">
         jQuery(document).ready(function() {
                 // Init Theme Core    
                 Core.init();
                 SCPC();
-                  
+                $('pre').addClass('prettyprint');
+                prettyPrint();
+
                 var options = {
                     currentPage: {{current_page}},
                     totalPages: {{total_page}},
@@ -209,20 +216,21 @@
                         if(data.login_status == false){
                             alert('Please login first.');
                         }else{
-                            $('#wnd-reply').modal();
-                            $('.summernote').summernote({
-                               height: 255,   //set editable area's height
-                               focus: false  //set focus editable area after Initialize summernote
-                             });
-                            var current_height = $(window).height()*3/5;
                             var current_width = $(window).width()*3/5;
-                            $('#post-to-submit').height(current_height);
-                            $('#post-to-submit').width(current_width);
-                            $('.modal-dialog').width(current_width+40)
-                            $('#post-to-submit').css("minHeight", current_height);
-                            $('#post-to-submit').css("maxHeight", current_height);
-                            $('#post-to-submit').css("maxWidth", current_width);
-                            $('#post-to-submit').css("minWidth", current_width);
+                            $('.modal-dialog').width(current_width+40);
+                            $('#editor-post').width(current_width);
+                            //-55-44
+                            var current_height = $(window).height()*2/5;
+                            $('#tab-reply').height(current_height);
+                            $('#editor').height(current_height-44);
+                            $('#editor-post').height(current_height-99);
+                            $('#wnd-reply').modal();
+                            if(Object.keys(UE.instants).length == 0){
+                                UE.getEditor('editor-post');
+                                $('.edui-default').css('z-index','1090');
+                                //UE.getEditor('editor-post').setHeight(current_height-99);
+                            }
+                            
                         }
                     });
                 });
@@ -233,7 +241,7 @@
                       url: '/forum/submit',
                       method: 'POST',
                       data: {
-                        content:$('#editor-post').code(),
+                        content:UE.getEditor('editor-post').getContent(),
                         title:$('#editor-title').val(),
                         father_node:{{post.id}}
                       },
@@ -249,6 +257,14 @@
                       type: 'json'
                     });
                 });
+
+                $('.SCPC_USER').each(function(v){
+                var username = $(this).text();
+                if(username.indexOf("_SCPC_")>=0){
+                    username = username.replace('_SCPC_', "<img src='/static/img/logos/scpc-small.png' style='height: 14px;margin-top: 2px;vertical-align:top;'>&nbsp;");
+                    $(this).html(username);
+                }
+            });
             
             
             });
@@ -261,17 +277,17 @@
                     <div id="news_window_content">
                         <div id="tab-reply" class="tab-pane">
                             <div class="row">
-                                <div class='col-md-12' style="padding-top:10px;">
-                                    <div class="summernote" style="height: 400px;" id="editor-post"></div>
+                                <div id="editor" class='col-md-12' style="padding-top:10px;">
+                                    <script id="editor-post" type="text/plain"></script>
                                 </div>
-
                                 <div class='col-md-3'>
-                                    <button type="button" id="btn-reply-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
+                                    <button type="button" style="margin-top: 10px;" id="btn-reply-confirm" class="btn btn-light6 btn-gradient">Confirm</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

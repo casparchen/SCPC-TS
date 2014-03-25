@@ -44,10 +44,10 @@
     <div id="main">
         <!-- Start: Content -->
         <section id="contest_section">
-            <div class="container">
+            <div class="container" style="padding-bottom: 30px;">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="panel">
+                        <div class="panel" style="margin-bottom: 0px;">
                             <div class="panel-heading">
                                 <div class="panel-title">
                                     <i class="glyphicons glyphicons-crown"></i>
@@ -65,32 +65,32 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div class="panel-body container">
+                            <div class="panel-body container" style="padding-bottom: 30px;">
                                 <div class="tab-content padding-none border-none">
                                     <div id="tab1" class="tab-pane active">
                                         <div class="row">
                                             <h1 class="text-center">Submission</h1>
                                         </div>
                                         <hr class="short" />
-                                        <table class="table table-hover table-striped1 text-center" id="submission_table">
+                                        <table class="table table-hover table-striped1 text-center table-striped-color-green" id="submission_table">
                                             <thead>
                                                 <tr>
                                                     <td width="6%">ID</td>
-                                                    <td width="17%">Problem</td>
-                                                    <td width="12%">User</td>
-                                                    <td width="15%">Result</td>
+                                                    <td width="7%">Problem</td>
+                                                    <td width="18%">User</td>
+                                                    <td width="19%">Result</td>
                                                     <td width="10%">Memory</td>
                                                     <td width="9%">Time</td>
                                                     <td width="7%">Compiler</td>
                                                     <td width="7%">Length</td>
-                                                    <td width="17%">Submit Time</td>
+                                                    <td width="19%">Submit Time</td>
                                                 </tr>
                                             </thead>
                                             <tbody id="submission_table_body">
                                                 {% for p in submissions %}
                                                 <tr>
                                                     <td>{{p.id}}</td>
-                                                    <td>{{p.problem_title}}</td>
+                                                    <td>{{p.problem_title|safe}}</td>
                                                     <td>{{p.username}}</td>
                                                     <td>{{p.result}}</td>
                                                     <td>{{p.memory_used}}</td>
@@ -110,7 +110,6 @@
                         </div>
                     </div>
                 </div>
-                <hr class="short" />
             </div>
         </section>
         <!-- End: Content -->
@@ -153,7 +152,7 @@
                 },
                 onPageChanged: function(e,oldPage,newPage){
                     if({{current_page}} != newPage){
-                        window.location.href = 'submissions/' + newPage;
+                        window.location.href = '../submissions/' + newPage;
                     }
                 }
             }
@@ -174,7 +173,31 @@
                 else{
                     $($(this).children()[3]).css('color', 'rgb(0, 128, 0)');
                 }
+                var username = $($(this).children()[2]).text();
+                if(username.indexOf("_SCPC_")>=0){
+                    username = username.replace('_SCPC_','');
+                    username = "<img src='/static/img/logos/scpc-small.png' style='height: 14px;margin-top: 2px;vertical-align:top;'>&nbsp;<span>" + username + "</span>"
+                    //username = username.replace('_SCPC_', "");
+                    $($(this).children()[2]).html(username);
+                }
             });
+
+            // add code link
+            $.getJSON("/user/login_status", function(data){
+                if(data.login_status == true){
+                    var SCPC_username = data.username;
+                    if(SCPC_username.indexOf("_SCPC_")>=0){
+                        SCPC_username = SCPC_username.replace('_SCPC_','');
+                    }
+                    $("#submission_table_body").children().each(function(){
+                        var username = $($($(this).children()[2]).children()[1]).text();
+                        if(username == SCPC_username || data.admin == true){
+                            $($(this).children()[6]).html("<a href='../code/"+$($(this).children()[0]).text() + "'>" + $($(this).children()[6]).text() +"</a>");
+                        }
+                    });
+                }
+            });
+
         });
     </script>
 </body>

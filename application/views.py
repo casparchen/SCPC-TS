@@ -656,7 +656,7 @@ def orca():
 @app.route('/index')
 @cache.cached(timeout=5)
 def index():
-    news_list = News.query.limit(8).all()
+    news_list = News.query.order_by(db.desc(News.id)).limit(8).all()
     lenx=6
     data = Submission.query.order_by(db.desc(Submission.id)).offset(0).limit(lenx).all()
     status = []

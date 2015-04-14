@@ -1,8 +1,6 @@
 SCPC Training System V2
 =======
 
-http://mrchenyi.com:5000/
-
 
 ####需要插件
   
